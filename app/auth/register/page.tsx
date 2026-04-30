@@ -15,16 +15,38 @@ export default function RegisterPage() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-
+  const [errorMessage, setErrorMessage] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
-    
+    setErrorMessage('')
+    if (password !== confirmPassword) {
+      setErrorMessage('Passwords do not match')
+      return
+    }
     // Simulate registration delay
     await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    // For demo purposes, accept any credentials
-    router.push('/app/dashboard')
+    try {
+      const response = await fetch('/api/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name, email, password }),
+      })
+
+      if (response.ok) {
+        router.push('/app/auth/login')
+      } else {
+        setErrorMessage('Failed to register')
+      }
+    } catch (error) {
+      console.error(error)
+      setErrorMessage('Failed to register')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -76,6 +98,19 @@ export default function RegisterPage() {
                 minLength={8}
               />
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                placeholder="Confirm your password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                minLength={8}
+              />
+            </div>
+            <div className="space-y-2"></div>
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? (
                 <>
@@ -86,6 +121,11 @@ export default function RegisterPage() {
                 'Create account'
               )}
             </Button>
+            {errorMessage && (
+              <div className="rounded-md border border-red-300 bg-red-100 px-3 py-2 text-sm font-medium text-red-800">
+                {errorMessage}
+              </div>
+            )}
           </form>
           <div className="mt-6 text-center text-sm">
             <span className="text-muted-foreground">Already have an account? </span>

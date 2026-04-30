@@ -18,9 +18,8 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
-    
-    // Simulate login delay
     await new Promise(resolve => setTimeout(resolve, 1000))
+    // Simulate login delay
     
     // For demo purposes, accept any credentials
     router.push('/app/dashboard')

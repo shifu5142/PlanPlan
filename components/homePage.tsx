@@ -7,8 +7,14 @@ function HomePage() {
     <main className="min-h-screen">
     {/* Hero Section */}
     <div className="relative overflow-hidden">
-      {/* Background Pattern */}
+      {/* Animated Background */}
       <div className="absolute inset-0 bg-white" />
+      <div className="absolute inset-0 opacity-90">
+        <div className="absolute left-1/2 top-1/2 h-[34rem] w-[34rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/35 blur-3xl animate-pulse" />
+        <div className="absolute left-1/2 top-1/2 h-[26rem] w-[26rem] -translate-x-[42%] -translate-y-[58%] rounded-full bg-blue-400/35 blur-3xl animate-pulse [animation-delay:800ms]" />
+        <div className="absolute left-1/2 top-1/2 h-[22rem] w-[22rem] -translate-x-[58%] -translate-y-[34%] rounded-full bg-violet-400/30 blur-3xl animate-pulse [animation-delay:1600ms]" />
+      </div>
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.45),transparent_55%)]" />
  
       
       <div className="relative max-w-6xl mx-auto px-4 py-20 md:py-32">
