@@ -81,7 +81,21 @@ function AIPageContent() {
 
   const handleSend = async (message?: string) => {
     const text = message || inputValue
-    if (!text.trim()) return
+    try {
+   const response = await fetch('/api/ai', {
+    method: 'POST',
+    body: JSON.stringify({ text }),
+   })
+   const data = await response.json()
+   if (data.success) {
+    addChatMessage('assistant', data.plan)
+    setIsTyping(false)
+   } 
+    } catch (error) {
+      console.error(error)
+      addChatMessage('assistant', 'Sorry, I encountered an error. Please try again.')
+      setIsTyping(false)
+    }
 
     // Add user message
     addChatMessage('user', text)

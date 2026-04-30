@@ -35,8 +35,8 @@ export default function RegisterPage() {
         },
         body: JSON.stringify({ name, email, password }),
       })
-
-      if (response.ok) {
+      const data = await response.json()
+      if (data.success) {
         router.push('/app/auth/login')
       } else {
         setErrorMessage('Failed to register')

@@ -8,21 +8,38 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Kanban, Loader2 } from 'lucide-react'
-
+import { FaGithub } from 'react-icons/fa'
+import { FcGoogle } from 'react-icons/fc'
 export default function LoginPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-
+  const [errorMessage, setErrorMessage] = useState('')
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    // Simulate login delay
-    
-    // For demo purposes, accept any credentials
-    router.push('/app/dashboard')
+    setErrorMessage('')
+    try {
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      })
+      const data = await response.json()
+      if (data.success) {
+        router.push('/app/dashboard')
+      } else {
+        setErrorMessage('login failed')
+      }
+    } catch (error) {
+      console.error(error)
+      setErrorMessage('login failed')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -72,6 +89,20 @@ export default function LoginPage() {
                 'Sign in'
               )}
             </Button>
+            {errorMessage && (
+              <div className="rounded-md border border-red-200 bg-red-50 p-2 text-sm text-red-600">
+                {errorMessage}
+              </div>
+            )}
+             <Button variant="outline" className="w-full">
+            <FcGoogle className="mr-2 h-4 w-4" />
+            Sign in with Google
+          </Button>
+          <Button variant="outline" className="w-full">
+            <FaGithub className="mr-2 h-4 w-4" />
+       
+            Sign in with github
+          </Button>
           </form>
           <div className="mt-6 text-center text-sm">
             <span className="text-muted-foreground">{"Don't have an account? "}</span>
