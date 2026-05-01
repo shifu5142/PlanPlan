@@ -13,25 +13,32 @@ import { FcGoogle } from 'react-icons/fc'
 export default function LoginPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
-  const [email, setEmail] = useState('')
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
+  const [successMessage, setSuccessMessage] = useState('')
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     setErrorMessage('')
+    setSuccessMessage('')
     try {
-      const response = await fetch('/api/login', {
+      const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL?.replace(/\/$/, '') ?? ''
+      const response = await fetch(`${baseUrl}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ username, password }),
       })
       const data = await response.json()
       if (data.success) {
-        router.push('/app/dashboard')
+        setSuccessMessage('Login successful')
+        setTimeout(() => {
+          router.push('/app/dashboard')
+        }, 1500)
       } else {
+        setSuccessMessage('')
         setErrorMessage('login failed')
       }
     } catch (error) {
@@ -58,13 +65,13 @@ export default function LoginPage() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="username">Username</Label>
               <Input
-                id="email"
-                type="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                id="username"
+                type="text"
+                placeholder="Your username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 required
               />
             </div>
@@ -89,8 +96,13 @@ export default function LoginPage() {
                 'Sign in'
               )}
             </Button>
+            {successMessage && (
+              <div className="rounded-md border border-green-300 bg-green-100 px-3 py-2 text-sm font-medium text-green-800">
+                {successMessage}
+              </div>
+            )}
             {errorMessage && (
-              <div className="rounded-md border border-red-200 bg-red-50 p-2 text-sm text-red-600">
+              <div className="rounded-md border border-red-300 bg-red-100 px-3 py-2 text-sm font-medium text-red-800">
                 {errorMessage}
               </div>
             )}

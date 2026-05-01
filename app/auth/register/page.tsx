@@ -12,33 +12,47 @@ import { Kanban, Loader2 } from 'lucide-react'
 export default function RegisterPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
-  const [name, setName] = useState('')
+  const [username, setUserName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
+  const [successMessage, setSuccessMessage] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     setErrorMessage('')
+    setSuccessMessage('')
     if (password !== confirmPassword) {
       setErrorMessage('Passwords do not match')
+      setIsLoading(false)
       return
     }
     // Simulate registration delay
     await new Promise(resolve => setTimeout(resolve, 1000))
     try {
-      const response = await fetch('/api/register', {
+      const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL?.replace(/\/$/, '') ?? ''
+      if (!baseUrl) {
+        setErrorMessage('Server URL missing: set NEXT_PUBLIC_BACKEND_URL in .env')
+        return
+      }
+      const response = await fetch(`${baseUrl}/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({ username, email, password }),
       })
       const data = await response.json()
       if (data.success) {
-        router.push('/app/auth/login')
+        setSuccessMessage('Successfully registered')
+        setTimeout(() => {
+          router.push('/auth/login')
+        }, 1500)
+      } else if (!data.success && data.message === 'The user already exists') {
+        setErrorMessage('The user already exists, please select a different email/username')
       } else {
+        alert(data.message)
         setErrorMessage('Failed to register')
       }
     } catch (error) {
@@ -70,8 +84,8 @@ export default function RegisterPage() {
                 id="name"
                 type="text"
                 placeholder="John Doe"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                value={username}
+                onChange={(e) => setUserName(e.target.value)}
                 required
               />
             </div>
@@ -121,6 +135,11 @@ export default function RegisterPage() {
                 'Create account'
               )}
             </Button>
+            {successMessage && (
+              <div className="rounded-md border border-green-300 bg-green-100 px-3 py-2 text-sm font-medium text-green-800">
+                {successMessage}
+              </div>
+            )}
             {errorMessage && (
               <div className="rounded-md border border-red-300 bg-red-100 px-3 py-2 text-sm font-medium text-red-800">
                 {errorMessage}
