@@ -1,5 +1,5 @@
 import React from 'react'
-import { Kanban, Bot, Users, CheckCircle2, ArrowRight } from 'lucide-react'
+import { Kanban, Bot, Users, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from './ui/button'
 function HomePage() {
@@ -126,14 +126,10 @@ function HomePage() {
 
     {/* Footer */}
     <footer className="py-8 border-t border-border">
-      <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row items-center justify-center gap-4">
         <div className="flex items-center gap-2">
           <Kanban className="h-5 w-5 text-primary" />
           <span className="font-semibold">TaskFlow</span>
-        </div>
-        <div className="flex items-center gap-6 text-sm text-muted-foreground">
-          <CheckCircle2 className="h-4 w-4 text-accent" />
-          <span>Built with Next.js</span>
         </div>
       </div>
     </footer>
