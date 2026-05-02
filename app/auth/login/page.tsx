@@ -10,6 +10,8 @@ import { Label } from '@/components/ui/label'
 import { Kanban, Loader2 } from 'lucide-react'
 import { FaGithub } from 'react-icons/fa'
 import { FcGoogle } from 'react-icons/fc'
+import { auth, googleProvider, githubProvider } from '@/app/services/auth/firebaseConfig'
+import { signInWithPopup } from 'firebase/auth'
 export default function LoginPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
@@ -46,6 +48,32 @@ export default function LoginPage() {
       setErrorMessage('login failed')
     } finally {
       setIsLoading(false)
+    }
+  }
+  const handleGoogleLogin = async () => {
+    try {
+      const result = await signInWithPopup(auth, googleProvider)
+      console.log(result)
+      setSuccessMessage('Login successful')
+      setTimeout(() => {
+        router.push('/app/dashboard')
+      }, 1500);
+    } catch (error) {
+      console.error(error)
+      setErrorMessage('Login failed')
+    }
+  }
+  const hanldeGithubLogin = async () => {
+    try {
+      const result = await signInWithPopup(auth, githubProvider)
+      console.log(result)
+      setSuccessMessage('Login successful')
+      setTimeout(() => {
+        router.push('/app/dashboard')
+      }, 1500);
+    } catch (error) {
+      console.error(error)
+      setErrorMessage('Login failed')
     }
   }
 
@@ -106,11 +134,11 @@ export default function LoginPage() {
                 {errorMessage}
               </div>
             )}
-             <Button variant="outline" className="w-full">
+             <Button variant="outline" className="w-full" onClick={handleGoogleLogin}>
             <FcGoogle className="mr-2 h-4 w-4" />
             Sign in with Google
           </Button>
-          <Button variant="outline" className="w-full">
+          <Button variant="outline" className="w-full" onClick={hanldeGithubLogin}>
             <FaGithub className="mr-2 h-4 w-4" />
        
             Sign in with github

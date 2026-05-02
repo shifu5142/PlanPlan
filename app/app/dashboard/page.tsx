@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 import {
   Dialog,
   DialogContent,
@@ -27,14 +28,41 @@ export default function DashboardPage() {
   const { data: boards = [] } = useSWR('boards', fetcher)
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [newBoardTitle, setNewBoardTitle] = useState('')
+  const [newBoardDescription, setNewBoardDescription] = useState('')
   const [selectedColor, setSelectedColor] = useState(BOARD_COLORS[0])
 
   const handleCreateBoard = () => {
     if (!newBoardTitle.trim()) return
-    createBoard(newBoardTitle, selectedColor)
+    const title = newBoardTitle.trim()
+    const description = newBoardDescription
+    const color = selectedColor
+
+    createBoard(title, color, description)
     mutate('boards')
     setNewBoardTitle('')
-    setSelectedColor(BOARD_COLORS[0])
+    setNewBoardDescription('')
+    setSelectedColor(BOARD_COLORS[0]);
+
+    void (async () => {
+      try {
+        const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL?.replace(/\/$/, '') ?? ''
+        if (!baseUrl) return
+        const response = await fetch(`${baseUrl}/boards`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, description, color }),
+        })
+        const data = await response.json()
+        if (data.success) {
+          console.log('Board created successfully')
+        } else {
+          console.error('Failed to create board')
+        }
+      } catch (error) {
+        console.error(error)
+      }
+    })()
+
     setIsCreateOpen(false)
   }
 
@@ -86,6 +114,17 @@ export default function DashboardPage() {
                     ))}
                   </div>
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="board-description">Description</Label>
+                  <Textarea
+                    id="board-description"
+                    placeholder="What is this board for?"
+                    value={newBoardDescription}
+                    onChange={(e) => setNewBoardDescription(e.target.value)}
+                    rows={3}
+                    className="resize-none"
+                  />
+                </div>
                 <Button onClick={handleCreateBoard} className="w-full">
                   Create Board
                 </Button>
@@ -107,6 +146,9 @@ export default function DashboardPage() {
                   <h3 className="font-semibold text-lg truncate group-hover:text-primary transition-colors">
                     {board.title}
                   </h3>
+                  {board.description && (
+                    <p className="text-sm text-muted-foreground line-clamp-2 mt-1">{board.description}</p>
+                  )}
                   <div className="flex items-center gap-2 mt-2 text-muted-foreground text-sm">
                     <Users className="h-4 w-4" />
                     <span>{board.members.length} member{board.members.length !== 1 ? 's' : ''}</span>

@@ -36,6 +36,7 @@ export interface User {
   export interface Board {
     id: string
     title: string
+    description?: string
     backgroundColor: string
     members: User[]
     columns: Column[]

@@ -168,10 +168,15 @@ export function getBoard(id: string): Board | undefined {
   return boards.find(b => b.id === id)
 }
 
-export function createBoard(title: string, backgroundColor: string): Board {
+export function createBoard(
+  title: string,
+  backgroundColor: string,
+  description?: string,
+): Board {
   const newBoard: Board = {
     id: `b${Date.now()}`,
     title,
+    ...(description?.trim() ? { description: description.trim() } : {}),
     backgroundColor,
     members: [currentUser],
     columns: [
