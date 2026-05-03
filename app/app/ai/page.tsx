@@ -14,10 +14,10 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { Bot, Send, Sparkles, ListTodo, Target, Lightbulb, ArrowRight } from 'lucide-react'
+import { Bot, Send, Sparkles, ListTodo, Target, ArrowRight } from 'lucide-react'
 import { getBoards, getBoard, getCard, getChatMessages, addChatMessage, clearChatMessages } from '@/lib/store'
 import { currentUser } from '@/lib/store'
-import type { Board, Card, ChatMessage } from '@/lib/types'
+import type { Board, ChatMessage } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
 function boardsFetcher(): Board[] {
@@ -44,12 +44,14 @@ function AIPageContent() {
   const { data: messages = [], mutate: mutateMessages } = useSWR('messages', messagesFetcher, {
     refreshInterval: 100,
   })
-
+  const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL?.replace(/\/$/, '') ?? ''
   const [selectedBoardId, setSelectedBoardId] = useState<string>(initialBoardId || '')
   const [selectedCardId, setSelectedCardId] = useState<string>(initialCardId || '')
   const [inputValue, setInputValue] = useState('')
   const [isTyping, setIsTyping] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  /** Avoid duplicate greeting in React Strict Mode; reset when chat is cleared. */
+  const greetingSeededRef = useRef(false)
 
   const selectedBoard = selectedBoardId ? getBoard(selectedBoardId) : undefined
   const selectedCard = selectedBoardId && selectedCardId ? getCard(selectedBoardId, selectedCardId) : undefined
@@ -65,55 +67,55 @@ function AIPageContent() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  // Generate context-aware greeting when context changes
+  // Opening assistant message when user lands on this page (or after clear chat)
   useEffect(() => {
-    if ((selectedBoard || selectedCard) && messages.length === 0) {
-      let greeting = "Hello! I'm your AI assistant. "
-      if (selectedCard) {
-        greeting += `I see you're working on "${selectedCard.title}". How can I help you with this task?`
-      } else if (selectedBoard) {
-        greeting += `I see you're working on the "${selectedBoard.title}" board. How can I help you manage your tasks?`
+    if (messages.length === 0) {
+      if (!greetingSeededRef.current) {
+        greetingSeededRef.current = true
+        addChatMessage('assistant', 'How can I help you with this task?')
+        mutateMessages()
       }
-      addChatMessage('assistant', greeting)
-      mutateMessages()
+    } else {
+      greetingSeededRef.current = true
     }
-  }, [selectedBoardId, selectedCardId, selectedBoard, selectedCard, messages.length, mutateMessages])
+  }, [messages.length, mutateMessages])
 
   const handleSend = async (message?: string) => {
-    const text = message || inputValue
+    const text = (message ?? inputValue).trim()
+    if (!text) return
+
+    setInputValue('')
+    addChatMessage('user', text)
+    setIsTyping(true)
+    mutateMessages()
+
     try {
-   const response = await fetch('/api/ai', {
-    method: 'POST',
-    body: JSON.stringify({ text }),
-   })
-   const data = await response.json()
-   if (data.success) {
-    addChatMessage('assistant', data.plan)
-    setIsTyping(false)
-   } 
+      const res = await fetch(baseUrl+'/app/ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ promt:text }),
+      })
+      const data = await res.json()
+      if (data.success && typeof data.plan === 'string') {
+        addChatMessage('assistant', data.plan)
+        console.log(data.plan)
+      } else {
+        addChatMessage(
+          'assistant',
+          typeof data.error === 'string' ? data.error : 'Something went wrong. Please try again.'
+        )
+      }
     } catch (error) {
       console.error(error)
       addChatMessage('assistant', 'Sorry, I encountered an error. Please try again.')
+    } finally {
       setIsTyping(false)
+      mutateMessages()
     }
-
-    // Add user message
-    addChatMessage('user', text)
-    setInputValue('')
-    mutateMessages()
-
-    // Simulate AI thinking
-    setIsTyping(true)
-    await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 1000))
-
-    // Generate AI response based on context
-    let response = generateAIResponse(text, selectedBoard, selectedCard)
-    addChatMessage('assistant', response)
-    setIsTyping(false)
-    mutateMessages()
   }
 
   const handleClearChat = () => {
+    greetingSeededRef.current = false
     clearChatMessages()
     mutateMessages()
   }
@@ -168,7 +170,7 @@ function AIPageContent() {
               <Select value={selectedCardId} onValueChange={setSelectedCardId}>
                 <SelectTrigger className="w-full sm:w-64">
                   <SelectValue placeholder="Select a card (optional)" />
-                </SelectTrigger>
+                </SelectTrigger>z
                 <SelectContent>
                   <SelectItem value="">No specific card</SelectItem>
                   {selectedBoard.columns.map((column) =>
@@ -188,18 +190,6 @@ function AIPageContent() {
       {/* Messages Area */}
       <ScrollArea className="flex-1">
         <div className="max-w-3xl mx-auto p-4 space-y-4">
-          {messages.length === 0 && !selectedBoard && (
-            <div className="text-center py-12">
-              <div className="h-16 w-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4">
-                <Lightbulb className="h-8 w-8 text-primary" />
-              </div>
-              <h2 className="text-lg font-medium mb-2">How can I help you today?</h2>
-              <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                Select a board above to get context-aware assistance, or ask me anything about task management.
-              </p>
-            </div>
-          )}
-
           {messages.map((message) => (
             <div
               key={message.id}
@@ -304,59 +294,4 @@ export default function AIPage() {
       <AIPageContent />
     </Suspense>
   )
-}
-
-// Helper function to generate contextual AI responses
-function generateAIResponse(userMessage: string, board?: Board, card?: Card): string {
-  const lowerMessage = userMessage.toLowerCase()
-
-  if (card) {
-    if (lowerMessage.includes('break down') || lowerMessage.includes('subtask')) {
-      return `Great idea to break down "${card.title}"! Here are some suggested subtasks:\n\n1. Research and gather requirements\n2. Create initial design/plan\n3. Implement core functionality\n4. Test and validate\n5. Document and review\n\nWould you like me to help you add any of these as separate cards?`
-    }
-    if (lowerMessage.includes('priority') || lowerMessage.includes('urgent')) {
-      const hasDueDate = card.dueDate ? `This task has a due date of ${new Date(card.dueDate).toLocaleDateString()}.` : 'This task has no due date set.'
-      return `Let me analyze "${card.title}":\n\n${hasDueDate}\n\nBased on the task details, I'd recommend:\n- Setting clear milestones\n- Breaking it into smaller chunks if needed\n- Assigning to team members with relevant skills\n\nWould you like me to suggest a specific timeline?`
-    }
-  }
-
-  if (board) {
-    const totalCards = board.columns.reduce((sum, col) => sum + col.cards.length, 0)
-    const doneColumn = board.columns.find(col => col.title.toLowerCase().includes('done'))
-    const doneCards = doneColumn?.cards.length || 0
-
-    if (lowerMessage.includes('prioritize') || lowerMessage.includes('priority')) {
-      return `Looking at your "${board.title}" board with ${totalCards} tasks:\n\n**Recommended Priority Order:**\n\n1. Tasks with upcoming due dates\n2. Tasks marked as "High Priority"\n3. Tasks blocking other work\n4. Quick wins (small tasks that can be completed fast)\n\nWould you like me to analyze specific tasks?`
-    }
-
-    if (lowerMessage.includes('work plan') || lowerMessage.includes('schedule')) {
-      return `Here's a suggested work plan for "${board.title}":\n\n**This Week:**\n- Focus on completing in-progress items\n- Review any blocked tasks\n\n**Next Week:**\n- Move top priority items from backlog\n- Schedule team sync for planning\n\n**Progress:** ${doneCards}/${totalCards} tasks completed\n\nWant me to create a more detailed schedule?`
-    }
-
-    if (lowerMessage.includes('next') || lowerMessage.includes('what should')) {
-      const inProgressCol = board.columns.find(col => 
-        col.title.toLowerCase().includes('progress') || col.title.toLowerCase().includes('doing')
-      )
-      const todoCol = board.columns.find(col => 
-        col.title.toLowerCase().includes('to do') || col.title.toLowerCase().includes('backlog')
-      )
-      
-      if (inProgressCol && inProgressCol.cards.length > 0) {
-        return `You currently have ${inProgressCol.cards.length} task(s) in progress. I'd recommend focusing on completing "${inProgressCol.cards[0].title}" before starting new work.\n\nWould you like tips on how to complete it faster?`
-      } else if (todoCol && todoCol.cards.length > 0) {
-        return `Your in-progress column is clear! I'd suggest starting with "${todoCol.cards[0].title}" from your To Do list.\n\nWant me to help you break this task down?`
-      }
-    }
-  }
-
-  // Generic responses
-  if (lowerMessage.includes('hello') || lowerMessage.includes('hi')) {
-    return "Hello! I'm here to help you manage your tasks more effectively. You can ask me to:\n\n- Break down tasks into subtasks\n- Prioritize your work\n- Create work plans\n- Suggest what to work on next\n\nWhat would you like help with?"
-  }
-
-  if (lowerMessage.includes('help') || lowerMessage.includes('what can you')) {
-    return "I can help you with:\n\n**Task Management**\n- Breaking down complex tasks\n- Setting priorities\n- Creating work schedules\n\n**Planning**\n- Sprint planning\n- Resource allocation suggestions\n- Timeline recommendations\n\n**Productivity**\n- Focus recommendations\n- Workload balancing\n- Progress tracking\n\nSelect a board above for context-aware assistance!"
-  }
-
-  return "I understand you're looking for help with your tasks. Could you provide more details about what you'd like to accomplish? You can also try one of the quick action buttons above for common task management needs."
 }
