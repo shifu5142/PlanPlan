@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -12,16 +12,25 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Kanban, LayoutDashboard, Bot, Settings, LogOut } from 'lucide-react'
-import { currentUser } from '@/lib/store'
+import { useUser } from '@/components/user-provider'
+
+function initialsFromName(name: string) {
+  const parts = name.trim().split(/\s+/).filter(Boolean)
+  if (parts.length === 0) return '?'
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase()
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+}
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  
+  const { user, clearUser } = useUser()
+  const initials = user ? initialsFromName(user.name) : '?'
+
   const navItems = [
     { href: '/app/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/app/ai', label: 'AI Assistant', icon: Bot },
   ]
-
+  console.log(user)
   return (
     <div className="min-h-screen flex flex-col">
       {/* Top Navbar */}
@@ -58,19 +67,50 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-9 w-9 rounded-full">
                 <Avatar className="h-9 w-9">
-                  <AvatarFallback className="bg-primary text-primary-foreground">
-                    {currentUser.name.split(' ').map(n => n[0]).join('')}
+                  {user?.avatar ? (
+                    <AvatarImage src={user.avatar} alt="" />
+                  ) : null}
+                  <AvatarFallback className="bg-primary text-primary-foreground text-sm font-medium">
+                    {initials}
                   </AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end" forceMount>
-              <div className="flex items-center justify-start gap-2 p-2">
-                <div className="flex flex-col space-y-1 leading-none">
-                  <p className="font-medium">{currentUser.name}</p>
-                  <p className="text-sm text-muted-foreground">{currentUser.email}</p>
+            <DropdownMenuContent className="w-64" align="end" forceMount>
+              {user ? (
+                <div className="flex items-start gap-3 p-3">
+                  <Avatar className="h-11 w-11 shrink-0">
+                    {user.avatar ? (
+                      <AvatarImage src={user.avatar} alt="" />
+                    ) : null}
+                    <AvatarFallback className="bg-primary/15 text-primary text-sm font-semibold">
+                      {initials}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="min-w-0 flex-1 space-y-1.5">
+                    <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                      Signed in
+                    </p>
+                    <p className="truncate font-semibold leading-tight" title={user.name}>
+                      {user.name}
+                    </p>
+                    <p
+                      className="truncate text-sm text-muted-foreground"
+                      title={user.email || undefined}
+                    >
+                      {user.email || 'No email on file'}
+                    </p>
+                    <p
+                      className="truncate font-mono text-xs text-muted-foreground/90"
+                      title={user.id}
+                    >
+                      ID: {user.id}
+                    </p>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="p-3 text-sm text-muted-foreground">Loading account…</div>
+              )}
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
                 <Link href="/app/dashboard" className="flex items-center gap-2 cursor-pointer">
@@ -90,7 +130,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
-                <Link href="/auth/login" className="flex items-center gap-2 cursor-pointer text-destructive">
+                <Link
+                  href="/auth/login"
+                  className="flex items-center gap-2 cursor-pointer text-destructive"
+                  onClick={() => {
+                    localStorage.removeItem('token')
+                    clearUser()
+                  }}
+                >
                   <LogOut className="h-4 w-4" />
                   Sign out
                 </Link>

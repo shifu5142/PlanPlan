@@ -1,7 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import NotFound from '@/app/not-found'
+import { PageLoadingIndicator } from '@/components/page-loading-indicator'
 import useSWR, { mutate } from 'swr'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -19,13 +21,24 @@ import { Plus, Users } from 'lucide-react'
 import { getBoards, createBoard } from '@/lib/store'
 import type { Board } from '@/lib/types'
 import { BOARD_COLORS } from '@/lib/types'
+import { useUser } from '@/components/user-provider'
 
 function fetcher(): Board[] {
   return getBoards()
 }
 
 export default function DashboardPage() {
-  const { data: boards = [] } = useSWR('boards', fetcher)
+  const { user } = useUser()
+  const [tokenChecked, setTokenChecked] = useState(false)
+  const [hasToken, setHasToken] = useState(false)
+
+  useEffect(() => {
+    const token = localStorage.getItem('token')
+    setHasToken(Boolean(token))
+    setTokenChecked(true)
+  }, [])
+
+  const { data: boards = [] } = useSWR(tokenChecked && hasToken ? 'boards' : null, fetcher)
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [newBoardTitle, setNewBoardTitle] = useState('')
   const [newBoardDescription, setNewBoardDescription] = useState('')
@@ -66,6 +79,18 @@ export default function DashboardPage() {
     setIsCreateOpen(false)
   }
 
+  if (!tokenChecked) {
+    return (
+      <div className="flex min-h-[calc(100vh-3.5rem)] items-center justify-center">
+        <PageLoadingIndicator />
+      </div>
+    )
+  }
+
+  if (!hasToken) {
+    return <NotFound />
+  }
+
   return (
     <div className="p-4 md:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
@@ -73,7 +98,11 @@ export default function DashboardPage() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold">Your Boards</h1>
-            <p className="text-muted-foreground mt-1">Manage and organize your projects</p>
+            <p className="text-muted-foreground mt-1">
+              {user
+                ? `Welcome back, ${user.name} — manage and organize your projects`
+                : 'Manage and organize your projects'}
+            </p>
           </div>
           <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
             <DialogTrigger asChild>

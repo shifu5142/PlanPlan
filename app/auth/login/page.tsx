@@ -12,8 +12,11 @@ import { FaGithub } from 'react-icons/fa'
 import { FcGoogle } from 'react-icons/fc'
 import { auth, googleProvider, githubProvider } from '@/app/services/auth/firebaseConfig'
 import { signInWithPopup } from 'firebase/auth'
+import { useUser } from '@/components/user-provider'
+////////////////////////////////////////////////////////////////////////////////////////
 export default function LoginPage() {
   const router = useRouter()
+  const { setUser } = useUser()
   const [isLoading, setIsLoading] = useState(false)
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -36,13 +39,15 @@ export default function LoginPage() {
       const data = await response.json()
       if (data.success) {
         setSuccessMessage('Login successful')
+        localStorage.setItem("token", data.token);
+        setUser(userFromLoginResponse(data as Record<string, unknown>, username))
         setTimeout(() => {
           router.push('/app/dashboard')
         }, 1500)
       } else {
         setSuccessMessage('')
         setErrorMessage('login failed')
-      }
+      } 
     } catch (error) {
       console.error(error)
       setErrorMessage('login failed')
@@ -53,7 +58,12 @@ export default function LoginPage() {
   const handleGoogleLogin = async () => {
     try {
       const result = await signInWithPopup(auth, googleProvider)
-      console.log(result)
+      const u = result.user
+      setUser({
+        id: u.uid,
+        name: u.displayName || u.email?.split('@')[0] || 'User',
+        email: u.email || '',
+      })
       setSuccessMessage('Login successful')
       setTimeout(() => {
         router.push('/app/dashboard')
@@ -66,7 +76,12 @@ export default function LoginPage() {
   const hanldeGithubLogin = async () => {
     try {
       const result = await signInWithPopup(auth, githubProvider)
-      console.log(result)
+      const u = result.user
+      setUser({
+        id: u.uid,
+        name: u.displayName || u.email?.split('@')[0] || u.providerData[0]?.email?.split('@')[0] || 'User',
+        email: u.email || u.providerData[0]?.email || '',
+      })
       setSuccessMessage('Login successful')
       setTimeout(() => {
         router.push('/app/dashboard')
