@@ -27,7 +27,7 @@ function fetcher(): Board[] {
   return getBoards()
 }
 
-function DashboardPage() {
+export default function DashboardPage() {
   const { user } = useUser()
   const [tokenChecked, setTokenChecked] = useState(false)
   const [hasToken, setHasToken] = useState(false)
@@ -217,5 +217,3 @@ function DashboardPage() {
     </div>
   )
 }
-
-export default DashboardPage

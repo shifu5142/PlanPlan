@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Kanban, Loader2 } from 'lucide-react'
 
-export default function RegisterPage() {
+function RegisterPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [username, setUserName] = useState('')
@@ -157,3 +157,5 @@ export default function RegisterPage() {
     </main>
   )
 }
+
+export default RegisterPage

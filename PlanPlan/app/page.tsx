@@ -1,8 +1,6 @@
 import HomePage from '@/components/homePage'
-function Home() {
+export default function Home() {
   return (
     <HomePage />
   )
 }
-
-export default Home

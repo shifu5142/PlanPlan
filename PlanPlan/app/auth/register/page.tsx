@@ -8,88 +8,58 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Kanban, Loader2 } from 'lucide-react'
-import { FaGithub } from 'react-icons/fa'
-import { FcGoogle } from 'react-icons/fc'
-import { auth, googleProvider, githubProvider } from '@/app/services/auth/firebaseConfig'
-import { signInWithPopup } from 'firebase/auth'
-import { userFromLoginResponse } from '../../../lib/user-session'
-import { useUser } from '@/components/user-provider'
-////////////////////////////////////////////////////////////////////////////////////////
- function LoginPage() {
+
+export default function RegisterPage() {
   const router = useRouter()
-  const { setUser } = useUser()
   const [isLoading, setIsLoading] = useState(false)
-  const [username, setUsername] = useState('')
+  const [username, setUserName] = useState('')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     setErrorMessage('')
     setSuccessMessage('')
+    if (password !== confirmPassword) {
+      setErrorMessage('Passwords do not match')
+      setIsLoading(false)
+      return
+    }
+    // Simulate registration delay
+    await new Promise(resolve => setTimeout(resolve, 1000))
     try {
       const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL?.replace(/\/$/, '') ?? ''
-      const response = await fetch(`${baseUrl}/auth/login`, {
+      if (!baseUrl) {
+        setErrorMessage('Server URL missing: set NEXT_PUBLIC_BACKEND_URL in .env')
+        return
+      }
+      const response = await fetch(`${baseUrl}/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ username, email, password }),
       })
       const data = await response.json()
       if (data.success) {
-        setSuccessMessage('Login successful')
-        localStorage.setItem("token", data.token);
-        setUser(userFromLoginResponse(data as Record<string, unknown>, username))
+        setSuccessMessage('Successfully registered')
         setTimeout(() => {
-          router.push('/app/dashboard')
+          router.push('/auth/login')
         }, 1500)
+      } else if (!data.success && data.message === 'The user already exists') {
+        setErrorMessage('The user already exists, please select a different email/username')
       } else {
-        setSuccessMessage('')
-        setErrorMessage('login failed')
-      } 
+        alert(data.message)
+        setErrorMessage('Failed to register')
+      }
     } catch (error) {
       console.error(error)
-      setErrorMessage('login failed')
+      setErrorMessage('Failed to register')
     } finally {
       setIsLoading(false)
-    }
-  }
-  const handleGoogleLogin = async () => {
-    try {
-      const result = await signInWithPopup(auth, googleProvider)
-      const u = result.user
-      setUser({
-        id: u.uid,
-        name: u.displayName || u.email?.split('@')[0] || 'User',
-        email: u.email || '',
-      })
-      setSuccessMessage('Login successful')
-      setTimeout(() => {
-        router.push('/app/dashboard')
-      }, 1500);
-    } catch (error) {
-      console.error(error)
-      setErrorMessage('Login failed')
-    }
-  }
-  const hanldeGithubLogin = async () => {
-    try {
-      const result = await signInWithPopup(auth, githubProvider)
-      const u = result.user
-      setUser({
-        id: u.uid,
-        name: u.displayName || u.email?.split('@')[0] || u.providerData[0]?.email?.split('@')[0] || 'User',
-        email: u.email || u.providerData[0]?.email || '',
-      })
-      setSuccessMessage('Login successful')
-      setTimeout(() => {
-        router.push('/app/dashboard')
-      }, 1500);
-    } catch (error) {
-      console.error(error)
-      setErrorMessage('Login failed')
     }
   }
 
@@ -103,19 +73,30 @@ import { useUser } from '@/components/user-provider'
               <span className="text-2xl font-bold">TaskFlow</span>
             </div>
           </div>
-          <CardTitle className="text-2xl">Welcome back</CardTitle>
-          <CardDescription>Sign in to your account to continue</CardDescription>
+          <CardTitle className="text-2xl">Create an account</CardTitle>
+          <CardDescription>Get started with TaskFlow today</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
+              <Label htmlFor="name">Full Name</Label>
               <Input
-                id="username"
+                id="name"
                 type="text"
-                placeholder="Your username"
+                placeholder="John Doe"
                 value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                onChange={(e) => setUserName(e.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
@@ -124,20 +105,34 @@ import { useUser } from '@/components/user-provider'
               <Input
                 id="password"
                 type="password"
-                placeholder="Enter your password"
+                placeholder="Create a password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                minLength={8}
               />
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                placeholder="Confirm your password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                minLength={8}
+              />
+            </div>
+            <div className="space-y-2"></div>
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Signing in...
+                  Creating account...
                 </>
               ) : (
-                'Sign in'
+                'Create account'
               )}
             </Button>
             {successMessage && (
@@ -150,20 +145,11 @@ import { useUser } from '@/components/user-provider'
                 {errorMessage}
               </div>
             )}
-             <Button variant="outline" className="w-full" onClick={handleGoogleLogin}>
-            <FcGoogle className="mr-2 h-4 w-4" />
-            Sign in with Google
-          </Button>
-          <Button variant="outline" className="w-full" onClick={hanldeGithubLogin}>
-            <FaGithub className="mr-2 h-4 w-4" />
-       
-            Sign in with github
-          </Button>
           </form>
           <div className="mt-6 text-center text-sm">
-            <span className="text-muted-foreground">{"Don't have an account? "}</span>
-            <Link href="/auth/register" className="text-primary hover:underline">
-              Sign up
+            <span className="text-muted-foreground">Already have an account? </span>
+            <Link href="/auth/login" className="text-primary hover:underline">
+              Sign in
             </Link>
           </div>
         </CardContent>
@@ -171,4 +157,3 @@ import { useUser } from '@/components/user-provider'
     </main>
   )
 }
-export default LoginPage

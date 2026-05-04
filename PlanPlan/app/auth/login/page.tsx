@@ -12,10 +12,9 @@ import { FaGithub } from 'react-icons/fa'
 import { FcGoogle } from 'react-icons/fc'
 import { auth, googleProvider, githubProvider } from '@/app/services/auth/firebaseConfig'
 import { signInWithPopup } from 'firebase/auth'
-import { userFromLoginResponse } from '../../../lib/user-session'
 import { useUser } from '@/components/user-provider'
 ////////////////////////////////////////////////////////////////////////////////////////
- function LoginPage() {
+export default function LoginPage() {
   const router = useRouter()
   const { setUser } = useUser()
   const [isLoading, setIsLoading] = useState(false)
@@ -171,4 +170,3 @@ import { useUser } from '@/components/user-provider'
     </main>
   )
 }
-export default LoginPage

@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Kanban, LayoutDashboard, Bot, Settings, LogOut } from 'lucide-react'
+import { Kanban, LayoutDashboard, Bot, Settings, LogOut, Trash2 } from 'lucide-react'
 import { useUser } from '@/components/user-provider'
 
 function initialsFromName(name: string) {
@@ -21,7 +21,7 @@ function initialsFromName(name: string) {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
 }
 
-export default function AppLayout({ children }: { children: React.ReactNode }) {
+function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const { user, clearUser } = useUser()
   const initials = user ? initialsFromName(user.name) : '?'
@@ -30,7 +30,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     { href: '/app/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/app/ai', label: 'AI Assistant', icon: Bot },
   ]
-  console.log(user)
   return (
     <div className="min-h-screen flex flex-col">
       {/* Top Navbar */}
@@ -128,6 +127,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 <Settings className="h-4 w-4" />
                 Settings
               </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/app/delete" className="flex items-center gap-2 cursor-pointer text-destructive">
+                  <Trash2 className="h-4 w-4" />
+                  Delete account
+                </Link>
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
                 <Link
@@ -176,3 +181,5 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     </div>
   )
 }
+
+export default AppLayout

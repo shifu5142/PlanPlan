@@ -1,6 +1,6 @@
 import Link from 'next/link'
 
-function NotFound() {
+export default function NotFound() {
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-6 py-16">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.12),transparent_45%)]" />
@@ -26,5 +26,3 @@ function NotFound() {
     </main>
   )
 }
-
-export default NotFound
