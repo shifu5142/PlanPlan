@@ -63,7 +63,12 @@ function DashboardPage() {
         const response = await fetch(`${baseUrl}/boards`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ title, description, color }),
+          body: JSON.stringify({
+            title,
+            description,
+            color,
+            user_id: user?.id ?? null,
+          }),
         })
         const data = await response.json()
         if (data.success) {
