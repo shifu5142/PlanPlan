@@ -18,10 +18,10 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
   const [mobileOpen, setMobileOpen] = React.useState(false)
 
   return (
-    <div className="min-h-[calc(100vh-3.5rem)] bg-muted/40">
+    <div className="min-h-[calc(100vh-3.5rem)] bg-muted/30">
       <div className="mx-auto flex max-w-[1680px]">
         {/* Desktop sidebar */}
-        <aside className="sticky top-14 z-30 hidden h-[calc(100vh-3.5rem)] w-64 shrink-0 border-border border-r bg-sidebar shadow-sm lg:block">
+        <aside className="sticky top-14 z-30 hidden h-[calc(100vh-3.5rem)] w-64 shrink-0 border-border border-r bg-card lg:block">
           <ScrollArea className="h-full">
             <SettingsSidebarNav />
           </ScrollArea>
@@ -30,10 +30,10 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
         {/* Main */}
         <div className="min-w-0 flex-1">
           {/* Mobile settings bar */}
-          <div className="sticky top-14 z-20 flex items-center justify-between gap-3 border-border border-b bg-background/95 px-4 py-3 backdrop-blur supports-backdrop-filter:bg-background/80 lg:hidden">
+          <div className="sticky top-14 z-20 flex items-center justify-between gap-3 border-border border-b bg-card px-4 py-3 lg:hidden">
             <div className="min-w-0">
-              <p className="text-muted-foreground text-xs font-medium uppercase tracking-wide">Workspace</p>
-              <p className="truncate font-semibold">Settings</p>
+              <p className="text-muted-foreground text-xs font-medium uppercase tracking-wider">Workspace</p>
+              <p className="truncate font-semibold text-foreground">Settings</p>
             </div>
             <Dialog open={mobileOpen} onOpenChange={setMobileOpen}>
               <DialogTrigger asChild>
@@ -43,7 +43,7 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
                 </Button>
               </DialogTrigger>
               <DialogContent className="flex max-h-[min(560px,calc(100vh-6rem))] flex-col gap-0 p-0 sm:max-w-md">
-                <DialogHeader className="border-border border-b px-4 py-3 text-left">
+                <DialogHeader className="border-border border-b px-4 py-3.5 text-left">
                   <DialogTitle>Settings</DialogTitle>
                 </DialogHeader>
                 <ScrollArea className="flex-1 max-h-[min(480px,70vh)]">

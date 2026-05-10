@@ -46,7 +46,7 @@ function BoardPage({ params }: { params: Promise<{ boardId: string }> }) {
   const { boardId } = use(params)
   const router = useRouter()
   const { data: board } = useSWR(`board:${boardId}`, fetcher)
-  
+
   const [isAddingColumn, setIsAddingColumn] = useState(false)
   const [newColumnTitle, setNewColumnTitle] = useState('')
   const [editingTitle, setEditingTitle] = useState(false)
@@ -92,11 +92,9 @@ function BoardPage({ params }: { params: Promise<{ boardId: string }> }) {
 
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event
-    const activeColumn = board.columns.find(col => 
-      col.cards.some(card => card.id === active.id)
-    )
+    const activeColumn = board.columns.find((col) => col.cards.some((card) => card.id === active.id))
     if (activeColumn) {
-      const card = activeColumn.cards.find(c => c.id === active.id)
+      const card = activeColumn.cards.find((c) => c.id === active.id)
       setActiveCard(card || null)
     }
   }
@@ -108,26 +106,18 @@ function BoardPage({ params }: { params: Promise<{ boardId: string }> }) {
     const activeId = active.id as string
     const overId = over.id as string
 
-    // Find source column
-    const sourceColumn = board.columns.find(col => 
-      col.cards.some(card => card.id === activeId)
-    )
-    
-    // Find target column (either by card or column id)
-    let targetColumn = board.columns.find(col => 
-      col.cards.some(card => card.id === overId)
-    )
-    
-    // If not found in cards, check if it's a column id
+    const sourceColumn = board.columns.find((col) => col.cards.some((card) => card.id === activeId))
+
+    let targetColumn = board.columns.find((col) => col.cards.some((card) => card.id === overId))
+
     if (!targetColumn) {
-      targetColumn = board.columns.find(col => col.id === overId)
+      targetColumn = board.columns.find((col) => col.id === overId)
     }
 
     if (!sourceColumn || !targetColumn || sourceColumn.id === targetColumn.id) return
 
-    // Move card to new column
-    const cardIndex = sourceColumn.cards.findIndex(c => c.id === activeId)
-    const overCardIndex = targetColumn.cards.findIndex(c => c.id === overId)
+    const cardIndex = sourceColumn.cards.findIndex((c) => c.id === activeId)
+    const overCardIndex = targetColumn.cards.findIndex((c) => c.id === overId)
     const newIndex = overCardIndex >= 0 ? overCardIndex : targetColumn.cards.length
 
     moveCard(boardId, activeId, sourceColumn.id, targetColumn.id, newIndex)
@@ -137,7 +127,7 @@ function BoardPage({ params }: { params: Promise<{ boardId: string }> }) {
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event
     setActiveCard(null)
-    
+
     if (!over) return
 
     const activeId = active.id as string
@@ -145,36 +135,30 @@ function BoardPage({ params }: { params: Promise<{ boardId: string }> }) {
 
     if (activeId === overId) return
 
-    // Find source column
-    const sourceColumn = board.columns.find(col => 
-      col.cards.some(card => card.id === activeId)
-    )
+    const sourceColumn = board.columns.find((col) => col.cards.some((card) => card.id === activeId))
 
     if (!sourceColumn) return
 
-    // Find target position within same column
-    const activeIndex = sourceColumn.cards.findIndex(c => c.id === activeId)
-    const overIndex = sourceColumn.cards.findIndex(c => c.id === overId)
+    const activeIndex = sourceColumn.cards.findIndex((c) => c.id === activeId)
+    const overIndex = sourceColumn.cards.findIndex((c) => c.id === overId)
 
     if (activeIndex !== -1 && overIndex !== -1 && activeIndex !== overIndex) {
-      // Reorder within same column
       const newCards = [...sourceColumn.cards]
       const [movedCard] = newCards.splice(activeIndex, 1)
       newCards.splice(overIndex, 0, movedCard)
-      
-      // Update cards order
+
       sourceColumn.cards = newCards
       mutate(`board:${boardId}`)
     }
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-3.5rem)] md:h-[calc(100vh-3.5rem)]">
+    <div className="flex flex-col h-[calc(100vh-3.5rem)] md:h-[calc(100vh-3.5rem)] bg-muted/30">
       {/* Board Header */}
-      <div className="flex items-center justify-between p-4 border-b border-border bg-background/95 backdrop-blur shrink-0">
+      <div className="flex items-center justify-between p-4 border-b border-border bg-card shrink-0">
         <div className="flex items-center gap-3">
           <Link href="/app/dashboard">
-            <Button variant="ghost" size="icon" className="h-8 w-8">
+            <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:text-foreground">
               <ArrowLeft className="h-4 w-4" />
             </Button>
           </Link>
@@ -189,7 +173,7 @@ function BoardPage({ params }: { params: Promise<{ boardId: string }> }) {
             />
           ) : (
             <h1
-              className="text-xl font-bold cursor-pointer hover:text-primary transition-colors"
+              className="text-xl font-bold cursor-pointer hover:text-primary transition-colors text-foreground"
               onClick={() => {
                 setBoardTitle(board.title)
                 setEditingTitle(true)
@@ -204,14 +188,17 @@ function BoardPage({ params }: { params: Promise<{ boardId: string }> }) {
           {/* Members */}
           <div className="hidden sm:flex items-center -space-x-2">
             {board.members.slice(0, 4).map((member) => (
-              <Avatar key={member.id} className="h-8 w-8 border-2 border-background">
-                <AvatarFallback className="text-xs bg-secondary">
-                  {member.name.split(' ').map(n => n[0]).join('')}
+              <Avatar key={member.id} className="h-8 w-8 border-2 border-card">
+                <AvatarFallback className="text-xs bg-secondary text-secondary-foreground font-medium">
+                  {member.name
+                    .split(' ')
+                    .map((n) => n[0])
+                    .join('')}
                 </AvatarFallback>
               </Avatar>
             ))}
             {board.members.length > 4 && (
-              <div className="h-8 w-8 rounded-full bg-secondary flex items-center justify-center text-xs font-medium border-2 border-background">
+              <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center text-xs font-medium border-2 border-card text-muted-foreground">
                 +{board.members.length - 4}
               </div>
             )}
@@ -223,7 +210,7 @@ function BoardPage({ params }: { params: Promise<{ boardId: string }> }) {
           </Button>
 
           <Link href={`/app/ai?boardId=${boardId}`}>
-            <Button size="sm" className="gap-2">
+            <Button size="sm" className="gap-2 shadow-sm">
               <Bot className="h-4 w-4" />
               <span className="hidden sm:inline">Ask AI</span>
             </Button>
@@ -241,31 +228,24 @@ function BoardPage({ params }: { params: Promise<{ boardId: string }> }) {
           onDragEnd={handleDragEnd}
         >
           <div className="flex gap-4 h-full">
-            <SortableContext
-              items={board.columns.map(col => col.id)}
-              strategy={horizontalListSortingStrategy}
-            >
+            <SortableContext items={board.columns.map((col) => col.id)} strategy={horizontalListSortingStrategy}>
               {board.columns.map((column) => (
-                <BoardColumn
-                  key={column.id}
-                  column={column}
-                  boardId={boardId}
-                  onCardClick={setSelectedCard}
-                />
+                <BoardColumn key={column.id} column={column} boardId={boardId} onCardClick={setSelectedCard} />
               ))}
             </SortableContext>
 
             {/* Add Column */}
             {isAddingColumn ? (
-              <div className="shrink-0 w-72 md:w-80 bg-card rounded-lg p-3">
+              <div className="shrink-0 w-72 md:w-80 bg-card rounded-xl p-3 border border-border">
                 <Input
                   placeholder="Enter column title"
                   value={newColumnTitle}
                   onChange={(e) => setNewColumnTitle(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleAddColumn()}
                   autoFocus
+                  className="h-10"
                 />
-                <div className="flex gap-2 mt-2">
+                <div className="flex gap-2 mt-3">
                   <Button size="sm" onClick={handleAddColumn}>
                     Add Column
                   </Button>
@@ -284,7 +264,7 @@ function BoardPage({ params }: { params: Promise<{ boardId: string }> }) {
             ) : (
               <button
                 onClick={() => setIsAddingColumn(true)}
-                className="shrink-0 w-72 md:w-80 h-12 rounded-lg border-2 border-dashed border-border hover:border-primary hover:bg-secondary/30 transition-all flex items-center justify-center gap-2 text-muted-foreground hover:text-foreground"
+                className="shrink-0 w-72 md:w-80 h-12 rounded-xl border-2 border-dashed border-border hover:border-primary/50 hover:bg-primary/5 transition-all flex items-center justify-center gap-2 text-muted-foreground hover:text-foreground"
               >
                 <Plus className="h-4 w-4" />
                 Add Column
@@ -292,28 +272,22 @@ function BoardPage({ params }: { params: Promise<{ boardId: string }> }) {
             )}
           </div>
 
-          <DragOverlay>
-            {activeCard ? <TaskCard card={activeCard} isDragging /> : null}
-          </DragOverlay>
+          <DragOverlay>{activeCard ? <TaskCard card={activeCard} isDragging /> : null}</DragOverlay>
         </DndContext>
       </div>
 
       {/* Card Modal */}
-      <CardModal
-        card={selectedCard}
-        boardId={boardId}
-        onClose={() => setSelectedCard(null)}
-      />
+      <CardModal card={selectedCard} boardId={boardId} onClose={() => setSelectedCard(null)} />
 
       {/* Invite Modal */}
       <Dialog open={isInviteOpen} onOpenChange={setIsInviteOpen}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Invite Team Members</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-4">
-            <Input placeholder="Enter email address" type="email" />
-            <Button className="w-full">Send Invitation</Button>
+            <Input placeholder="Enter email address" type="email" className="h-11" />
+            <Button className="w-full h-10">Send Invitation</Button>
           </div>
         </DialogContent>
       </Dialog>

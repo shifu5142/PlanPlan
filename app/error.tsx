@@ -1,32 +1,47 @@
 'use client'
 
 import Link from 'next/link'
+import { Kanban, AlertCircle } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 
 function ErrorPage() {
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-6 py-16">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.12),transparent_45%)]" />
+      {/* Subtle background gradient */}
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-destructive/5 via-transparent to-transparent" />
 
-      <section className="relative w-full max-w-xl rounded-2xl border border-border/60 bg-card/80 p-10 text-center shadow-xl backdrop-blur">
-        <p className="text-sm font-semibold uppercase tracking-[0.24em] text-primary">
+      <section className="relative w-full max-w-lg text-center">
+        {/* Icon */}
+        <div className="mx-auto mb-8 flex h-20 w-20 items-center justify-center rounded-2xl bg-destructive/10 border border-destructive/20">
+          <AlertCircle className="h-10 w-10 text-destructive" />
+        </div>
+
+        {/* Content */}
+        <p className="text-sm font-medium uppercase tracking-widest text-destructive mb-3">
           Unexpected Error
         </p>
-        <h1 className="mt-4 text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
+        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground mb-4">
           Something Went Wrong
         </h1>
-        <p className="mt-4 text-base leading-relaxed text-muted-foreground">
+        <p className="text-base leading-relaxed text-muted-foreground mb-8 max-w-md mx-auto">
           An unexpected error occurred while loading this page. Please return to the home
           page and try again.
         </p>
 
-        <Link
-          href="/"
-          className="mt-8 inline-flex items-center justify-center rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-        >
-          Back to Home Page
+        <Link href="/">
+          <Button size="lg" className="h-12 px-6 shadow-sm">
+            Back to Home Page
+          </Button>
         </Link>
+
+        {/* Logo */}
+        <div className="mt-12 flex items-center justify-center gap-2 text-muted-foreground">
+          <Kanban className="h-5 w-5" />
+          <span className="font-semibold">TaskFlow</span>
+        </div>
       </section>
     </main>
   )
 }
-export default ErrorPage;
+
+export default ErrorPage

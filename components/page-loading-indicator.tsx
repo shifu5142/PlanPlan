@@ -1,19 +1,15 @@
-<<<<<<< HEAD
+import { Kanban } from 'lucide-react'
+
 export function PageLoadingIndicator() {
   return (
-    <div className="flex flex-col items-center gap-3 text-muted-foreground">
-      <div className="h-8 w-8 animate-spin rounded-full border-2 border-current border-t-transparent" />
-      <p className="text-sm font-medium">Loading page...</p>
+    <div className="flex flex-col items-center gap-4">
+      <div className="relative">
+        <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
+          <Kanban className="h-6 w-6 text-primary" />
+        </div>
+        <div className="absolute inset-0 h-12 w-12 animate-ping rounded-xl bg-primary/20" />
+      </div>
+      <p className="text-sm font-medium text-muted-foreground">Loading...</p>
     </div>
   )
 }
-=======
-export function PageLoadingIndicator() {
-  return (
-    <div className="flex flex-col items-center gap-3 text-muted-foreground">
-      <div className="h-8 w-8 animate-spin rounded-full border-2 border-current border-t-transparent" />
-      <p className="text-sm font-medium">Loading page...</p>
-    </div>
-  )
-}
->>>>>>> 5145a8cd9bf545d1713bda93730c11d2f28b92e4
