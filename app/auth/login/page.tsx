@@ -88,7 +88,6 @@ import { useUser } from '@/components/user-provider'
       setErrorMessage('login failed')
     } finally {
       setIsLoading(false)
-      console.log(submittedUser)
     }
   }
   const handleGoogleLogin = async () => {
