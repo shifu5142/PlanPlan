@@ -92,28 +92,82 @@ function LoginPage() {
   }
 
   const handleGoogleLogin = async () => {
+    let submittedUser: { id: unknown; name: unknown; email: unknown } | null = null
+    setErrorMessage('')
+    setSuccessMessage('')
     try {
       const result = await signInWithPopup(auth, googleProvider)
       const u = result.user
-      const idToken = await u.getIdToken()
-      setUser({
-        id: u.uid,
-        name: u.displayName || u.email?.split('@')[0] || 'User',
-        email: u.email || '',
-      })
+      const displayFallback = u.displayName || u.email?.split('@')[0] || 'User'
+
       const response = await fetch(`${baseUrl}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ idToken }),
+        body: JSON.stringify({
+          googleuser: {
+            id: u.uid,
+            username: u.displayName,
+            email: u.email,
+          },
+        }),
       })
-      const res = await response.json()
-      localStorage.setItem('token', res.data)
-      setSuccessMessage('Login successful')
-      setTimeout(() => {
-        router.push('/app/dashboard')
-      }, 1500)
+      const data = (await response.json()) as Record<string, unknown> & { success?: boolean }
+      if (data.success) {
+        const body = data.data
+        let accessToken = typeof data.token === 'string' ? data.token.trim() : ''
+        if (!accessToken && typeof body === 'string') {
+          accessToken = body.trim()
+        }
+        if (!accessToken && body && typeof body === 'object' && !Array.isArray(body)) {
+          const nested = (body as { token?: unknown }).token
+          if (typeof nested === 'string') accessToken = nested.trim()
+        }
+
+        if (!accessToken) {
+          setSuccessMessage('')
+          setErrorMessage('Login failed: no token returned')
+          return
+        }
+
+        localStorage.setItem('token', accessToken)
+
+        const payload =
+          body && typeof body === 'object' && !Array.isArray(body) ? (body as Record<string, unknown>) : null
+        const gu =
+          payload?.googleuser &&
+          typeof payload.googleuser === 'object' &&
+          !Array.isArray(payload.googleuser)
+            ? (payload.googleuser as Record<string, unknown>)
+            : null
+
+        submittedUser = {
+          id: gu?.id ?? payload?.id,
+          name: gu?.username ?? gu?.name ?? payload?.name,
+          email: gu?.email ?? payload?.email,
+        }
+
+        if (submittedUser.id != null && String(submittedUser.id).length > 0) {
+          setUser({
+            id: String(submittedUser.id),
+            name: String((submittedUser.name ?? displayFallback) || 'User'),
+            email: String(submittedUser.email ?? u.email ?? ''),
+            ...(u.photoURL ? { avatar: u.photoURL } : {}),
+          })
+        } else {
+          setUser(userFromLoginResponse(data, displayFallback))
+        }
+        setUserData(submittedUser as Record<string, unknown>)
+
+        setSuccessMessage('Login successful')
+        setTimeout(() => {
+          router.push('/app/dashboard')
+        }, 1500)
+      } else {
+        setSuccessMessage('')
+        setErrorMessage('login failed')
+      }
     } catch (error) {
       console.error(error)
       setErrorMessage('Login failed')
@@ -121,28 +175,82 @@ function LoginPage() {
   }
 
   const hanldeGithubLogin = async () => {
+    let submittedUser: { id: unknown; name: unknown; email: unknown } | null = null
+    setErrorMessage('')
+    setSuccessMessage('')
     try {
       const result = await signInWithPopup(auth, githubProvider)
       const u = result.user
-      const idToken = await u.getIdToken()
-      setUser({
-        id: u.uid,
-        name: u.displayName || u.email?.split('@')[0] || u.providerData[0]?.email?.split('@')[0] || 'User',
-        email: u.email || u.providerData[0]?.email || '',
-      })
+      const displayFallback =
+        u.displayName || u.email?.split('@')[0] || u.providerData[0]?.email?.split('@')[0] || 'User'
+
       const response = await fetch(`${baseUrl}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ idToken }),
+        body: JSON.stringify({
+          githubuser: { id: u.uid, name: u.displayName, email: u.email },
+        }),
       })
-      const res = await response.json()
-      localStorage.setItem('token', res.data)
-      setSuccessMessage('Login successful')
-      setTimeout(() => {
-        router.push('/app/dashboard')
-      }, 1500)
+      const data = (await response.json()) as Record<string, unknown> & { success?: boolean }
+      console.log(data)
+      if (data.success) {
+        const body = data.data
+        let accessToken = typeof data.token === 'string' ? data.token.trim() : ''
+        if (!accessToken && typeof body === 'string') {
+          accessToken = body.trim()
+        }
+        if (!accessToken && body && typeof body === 'object' && !Array.isArray(body)) {
+          const nested = (body as { token?: unknown }).token
+          if (typeof nested === 'string') accessToken = nested.trim()
+        }
+
+        if (!accessToken) {
+          setSuccessMessage('')
+          setErrorMessage('Login failed: no token returned')
+          return
+        }
+
+        localStorage.setItem('token', accessToken)
+
+        const payload =
+          body && typeof body === 'object' && !Array.isArray(body) ? (body as Record<string, unknown>) : null
+        const gh =
+          payload?.githubuser &&
+          typeof payload.githubuser === 'object' &&
+          !Array.isArray(payload.githubuser)
+            ? (payload.githubuser as Record<string, unknown>)
+            : null
+
+        submittedUser = {
+          id: gh?.id ?? payload?.id,
+          name: gh?.username ?? gh?.name ?? payload?.name,
+          email: gh?.email ?? payload?.email,
+        }
+
+        const emailFallback = u.email || u.providerData[0]?.email || ''
+
+        if (submittedUser.id != null && String(submittedUser.id).length > 0) {
+          setUser({
+            id: String(submittedUser.id),
+            name: String((submittedUser.name ?? displayFallback) || 'User'),
+            email: String(submittedUser.email ?? emailFallback),
+            ...(u.photoURL ? { avatar: u.photoURL } : {}),
+          })
+        } else {
+          setUser(userFromLoginResponse(data, displayFallback))
+        }
+        setUserData(submittedUser as Record<string, unknown>)
+
+        setSuccessMessage('Login successful')
+        setTimeout(() => {
+          router.push('/app/dashboard')
+        }, 1500)
+      } else {
+        setSuccessMessage('')
+        setErrorMessage('login failed')
+      }
     } catch (error) {
       console.error(error)
       setErrorMessage('Login failed')
