@@ -96,50 +96,6 @@ function HomePage() {
         </div>
       </div>
 
-      {/* Features Section */}
-      <section className="border-border border-t py-20 md:py-32">
-        <div className="mx-auto max-w-6xl px-4">
-          <div className="mb-16 text-center">
-            <h2 className="mb-4 text-3xl font-bold md:text-4xl">Everything you need to stay productive</h2>
-            <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
-              Powerful features designed to help teams collaborate and deliver projects on time.
-            </p>
-          </div>
-
-          <div className="grid gap-8 md:grid-cols-3">
-            <article className="group rounded-xl border border-border bg-card p-6 shadow-sm ring-1 ring-transparent transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:ring-primary/20">
-              <div className="mb-4 flex size-14 items-center justify-center rounded-xl bg-primary/10 text-primary shadow-inner ring-2 ring-primary/20 transition-all duration-300 group-hover:bg-primary/[0.15] group-hover:ring-primary/30">
-                <Kanban className="size-7 transition-transform duration-300 group-hover:scale-110" aria-hidden />
-              </div>
-              <h3 className="mb-2 text-xl font-semibold transition-colors duration-200 group-hover:text-primary">Kanban Boards</h3>
-              <p className="leading-relaxed text-muted-foreground">
-                Visualize your workflow with customizable boards. Drag and drop tasks between columns to track progress.
-              </p>
-            </article>
-
-            <article className="group rounded-xl border border-border bg-card p-6 shadow-sm ring-1 ring-transparent transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:ring-chart-5/35">
-              <div className="mb-4 flex size-14 items-center justify-center rounded-xl bg-chart-5/15 text-chart-5 shadow-inner ring-2 ring-chart-5/30 transition-all duration-300 group-hover:bg-chart-5/20">
-                <Zap className="size-7 text-primary transition-transform duration-300 group-hover:scale-110" aria-hidden />
-              </div>
-              <h3 className="mb-2 text-xl font-semibold transition-colors duration-200 group-hover:text-primary">AI Assistant</h3>
-              <p className="leading-relaxed text-muted-foreground">
-                Get intelligent suggestions for task prioritization, breakdowns, and work planning powered by AI.
-              </p>
-            </article>
-
-            <article className="group rounded-xl border border-border bg-card p-6 shadow-sm ring-1 ring-transparent transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:ring-chart-2/35">
-              <div className="mb-4 flex size-14 items-center justify-center rounded-xl bg-chart-2/15 text-chart-2 shadow-inner ring-2 ring-chart-2/30 transition-all duration-300 group-hover:bg-chart-2/20">
-                <Users className="size-7 transition-transform duration-300 group-hover:scale-110" aria-hidden />
-              </div>
-              <h3 className="mb-2 text-xl font-semibold transition-colors duration-200 group-hover:text-primary">Team Collaboration</h3>
-              <p className="leading-relaxed text-muted-foreground">
-                Invite team members, assign tasks, and work together seamlessly across all your projects.
-              </p>
-            </article>
-          </div>
-        </div>
-      </section>
-
       {/* What you can do — product screenshot */}
       <section className="border-border border-t py-20 md:py-28">
         <div className="mx-auto max-w-6xl px-4">
@@ -239,7 +195,7 @@ function HomePage() {
                       fill
                       className="object-cover object-left-top"
                       sizes="(max-width: 1024px) 100vw, 50vw"
-                      priority={false}
+                      priority
                     />
                   </div>
                   <figcaption className="flex items-center justify-between gap-2 border-border border-t bg-muted/40 px-4 py-3 text-muted-foreground text-xs backdrop-blur-sm dark:bg-muted/20">
@@ -249,6 +205,50 @@ function HomePage() {
                 </figure>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="border-border border-t py-20 md:py-32">
+        <div className="mx-auto max-w-6xl px-4">
+          <div className="mb-16 text-center">
+            <h2 className="mb-4 text-3xl font-bold md:text-4xl">Everything you need to stay productive</h2>
+            <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
+              Powerful features designed to help teams collaborate and deliver projects on time.
+            </p>
+          </div>
+
+          <div className="grid gap-8 md:grid-cols-3">
+            <article className="group rounded-xl border border-border bg-card p-6 shadow-sm ring-1 ring-transparent transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:ring-primary/20">
+              <div className="mb-4 flex size-14 items-center justify-center rounded-xl bg-primary/10 text-primary shadow-inner ring-2 ring-primary/20 transition-all duration-300 group-hover:bg-primary/[0.15] group-hover:ring-primary/30">
+                <Kanban className="size-7 transition-transform duration-300 group-hover:scale-110" aria-hidden />
+              </div>
+              <h3 className="mb-2 text-xl font-semibold transition-colors duration-200 group-hover:text-primary">Kanban Boards</h3>
+              <p className="leading-relaxed text-muted-foreground">
+                Visualize your workflow with customizable boards. Drag and drop tasks between columns to track progress.
+              </p>
+            </article>
+
+            <article className="group rounded-xl border border-border bg-card p-6 shadow-sm ring-1 ring-transparent transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:ring-chart-5/35">
+              <div className="mb-4 flex size-14 items-center justify-center rounded-xl bg-chart-5/15 text-chart-5 shadow-inner ring-2 ring-chart-5/30 transition-all duration-300 group-hover:bg-chart-5/20">
+                <Zap className="size-7 text-primary transition-transform duration-300 group-hover:scale-110" aria-hidden />
+              </div>
+              <h3 className="mb-2 text-xl font-semibold transition-colors duration-200 group-hover:text-primary">AI Assistant</h3>
+              <p className="leading-relaxed text-muted-foreground">
+                Get intelligent suggestions for task prioritization, breakdowns, and work planning powered by AI.
+              </p>
+            </article>
+
+            <article className="group rounded-xl border border-border bg-card p-6 shadow-sm ring-1 ring-transparent transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:ring-chart-2/35">
+              <div className="mb-4 flex size-14 items-center justify-center rounded-xl bg-chart-2/15 text-chart-2 shadow-inner ring-2 ring-chart-2/30 transition-all duration-300 group-hover:bg-chart-2/20">
+                <Users className="size-7 transition-transform duration-300 group-hover:scale-110" aria-hidden />
+              </div>
+              <h3 className="mb-2 text-xl font-semibold transition-colors duration-200 group-hover:text-primary">Team Collaboration</h3>
+              <p className="leading-relaxed text-muted-foreground">
+                Invite team members, assign tasks, and work together seamlessly across all your projects.
+              </p>
+            </article>
           </div>
         </div>
       </section>
