@@ -2,7 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+<<<<<<< HEAD
 import { usePathname } from 'next/navigation'
+=======
+>>>>>>> 5145a8cd9bf545d1713bda93730c11d2f28b92e4
 import NotFound from '@/app/not-found'
 import { PageLoadingIndicator } from '@/components/page-loading-indicator'
 import { Card, CardContent } from '@/components/ui/card'
@@ -17,12 +20,19 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
+<<<<<<< HEAD
 import { Bot, CircleUser, LayoutDashboard, Plus, Users } from 'lucide-react'
 import type { Board, User } from '@/lib/types'
 import { BOARD_COLORS } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { useUser } from '@/components/user-provider'
 import { useUserMenuControl } from '@/components/user-menu-control'
+=======
+import { Plus, Users } from 'lucide-react'
+import type { Board, User } from '@/lib/types'
+import { BOARD_COLORS } from '@/lib/types'
+import { useUser } from '@/components/user-provider'
+>>>>>>> 5145a8cd9bf545d1713bda93730c11d2f28b92e4
 
 
 async function readJsonSafely<T>(response: Response): Promise<T> {
@@ -97,6 +107,7 @@ function createStaticBoard(
   }
 }
 
+<<<<<<< HEAD
 function DashboardSideNav() {
   const pathname = usePathname()
   const menu = useUserMenuControl()
@@ -144,6 +155,8 @@ function DashboardSideNav() {
   )
 }
 
+=======
+>>>>>>> 5145a8cd9bf545d1713bda93730c11d2f28b92e4
 export default function DashboardPage() {
   const { user } = useUser()
   const [tokenChecked, setTokenChecked] = useState(false)
@@ -266,10 +279,15 @@ export default function DashboardPage() {
   }
 
   return (
+<<<<<<< HEAD
     <div className="flex min-h-[calc(100vh-3.5rem)] flex-col md:flex-row">
       <DashboardSideNav />
       <div className="min-w-0 flex-1 p-4 md:p-6 lg:p-8">
       <div className="mx-auto max-w-7xl">
+=======
+    <div className="p-4 md:p-6 lg:p-8">
+      <div className="max-w-7xl mx-auto">
+>>>>>>> 5145a8cd9bf545d1713bda93730c11d2f28b92e4
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -388,7 +406,10 @@ export default function DashboardPage() {
           </div>
         ) : null}
       </div>
+<<<<<<< HEAD
       </div>
+=======
+>>>>>>> 5145a8cd9bf545d1713bda93730c11d2f28b92e4
     </div>
   )
 }

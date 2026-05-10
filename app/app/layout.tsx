@@ -2,7 +2,10 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+<<<<<<< HEAD
 import * as React from 'react'
+=======
+>>>>>>> 5145a8cd9bf545d1713bda93730c11d2f28b92e4
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
@@ -14,7 +17,10 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Kanban, LayoutDashboard, Bot, Settings, LogOut, Trash2 } from 'lucide-react'
 import { useUser } from '@/components/user-provider'
+<<<<<<< HEAD
 import { UserMenuControlProvider } from '@/components/user-menu-control'
+=======
+>>>>>>> 5145a8cd9bf545d1713bda93730c11d2f28b92e4
 
 function initialsFromName(name: string) {
   const parts = name.trim().split(/\s+/).filter(Boolean)
@@ -27,15 +33,21 @@ function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const { user, clearUser } = useUser()
   const initials = user ? initialsFromName(user.name) : '?'
+<<<<<<< HEAD
   const [userMenuOpen, setUserMenuOpen] = React.useState(false)
   const openUserMenu = React.useCallback(() => setUserMenuOpen(true), [])
+=======
+>>>>>>> 5145a8cd9bf545d1713bda93730c11d2f28b92e4
 
   const navItems = [
     { href: '/app/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/app/ai', label: 'AI Assistant', icon: Bot },
   ]
   return (
+<<<<<<< HEAD
     <UserMenuControlProvider openUserMenu={openUserMenu}>
+=======
+>>>>>>> 5145a8cd9bf545d1713bda93730c11d2f28b92e4
     <div className="min-h-screen flex flex-col">
       {/* Top Navbar */}
       <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -67,7 +79,11 @@ function AppLayout({ children }: { children: React.ReactNode }) {
           </nav>
 
           {/* User Menu */}
+<<<<<<< HEAD
           <DropdownMenu open={userMenuOpen} onOpenChange={setUserMenuOpen}>
+=======
+          <DropdownMenu>
+>>>>>>> 5145a8cd9bf545d1713bda93730c11d2f28b92e4
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-9 w-9 rounded-full">
                 <Avatar className="h-9 w-9">
@@ -128,11 +144,17 @@ function AppLayout({ children }: { children: React.ReactNode }) {
                   AI Assistant
                 </Link>
               </DropdownMenuItem>
+<<<<<<< HEAD
               <DropdownMenuItem asChild>
                 <Link href="/app/settings" className="flex cursor-pointer items-center gap-2">
                   <Settings className="h-4 w-4" />
                   Settings
                 </Link>
+=======
+              <DropdownMenuItem className="flex items-center gap-2 cursor-pointer">
+                <Settings className="h-4 w-4" />
+                Settings
+>>>>>>> 5145a8cd9bf545d1713bda93730c11d2f28b92e4
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link href="/app/delete" className="flex items-center gap-2 cursor-pointer text-destructive">
@@ -186,7 +208,10 @@ function AppLayout({ children }: { children: React.ReactNode }) {
         {children}
       </main>
     </div>
+<<<<<<< HEAD
     </UserMenuControlProvider>
+=======
+>>>>>>> 5145a8cd9bf545d1713bda93730c11d2f28b92e4
   )
 }
 
