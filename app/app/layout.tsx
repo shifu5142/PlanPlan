@@ -21,7 +21,7 @@ function initialsFromName(name: string) {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
 }
 
-export default function AppLayout({ children }: { children: React.ReactNode }) {
+function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const { user, clearUser } = useUser()
   const initials = user ? initialsFromName(user.name) : '?'
@@ -30,7 +30,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     { href: '/app/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/app/ai', label: 'AI Assistant', icon: Bot },
   ]
-  console.log(user)
   return (
     <div className="min-h-screen flex flex-col">
       {/* Top Navbar */}
@@ -124,15 +123,17 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                   AI Assistant
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem className="flex items-center gap-2 cursor-pointer">
-                <Settings className="h-4 w-4" />
-                Settings
-              </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link
-                  href="/app/delete"
-                  className="flex items-center gap-2 cursor-pointer text-destructive focus:text-destructive"
+                  href="/app/setting/profile"
+                  className="flex items-center gap-2 cursor-pointer"
                 >
+                  <Settings className="h-4 w-4" />
+                  Settings
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/app/delete" className="flex items-center gap-2 cursor-pointer text-destructive">
                   <Trash2 className="h-4 w-4" />
                   Delete account
                 </Link>
@@ -185,3 +186,5 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     </div>
   )
 }
+
+export default AppLayout

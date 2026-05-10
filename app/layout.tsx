@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { FullPageLoadGate } from '@/components/full-page-load-gate'
+import { ThemeProvider } from '@/components/theme-provider'
 import { UserProvider } from '@/components/user-provider'
 import './globals.css'
 
@@ -31,19 +32,28 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({
+function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className="bg-background">
+    <html lang="en" className="bg-background" suppressHydrationWarning>
       <body className="font-sans antialiased">
-        <FullPageLoadGate>
-          <UserProvider>{children}</UserProvider>
-        </FullPageLoadGate>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <FullPageLoadGate>
+            <UserProvider>{children}</UserProvider>
+          </FullPageLoadGate>
+        </ThemeProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>
   )
 }
+
+export default RootLayout

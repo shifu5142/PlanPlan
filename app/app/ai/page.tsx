@@ -284,7 +284,7 @@ function AIPageContent() {
   )
 }
 
-export default function AIPage() {
+function AIPage() {
   return (
     <Suspense fallback={
       <div className="flex items-center justify-center h-[calc(100vh-3.5rem)]">
@@ -295,3 +295,5 @@ export default function AIPage() {
     </Suspense>
   )
 }
+
+export default AIPage

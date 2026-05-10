@@ -59,11 +59,7 @@ function nameFromUserObject(u: Record<string, unknown> | undefined): string | un
   )
 }
 
-/** Map backend /auth/login JSON to a User (shape may vary by API). */
-export function userFromLoginResponse(
-  data: Record<string, unknown>,
-  formUsername: string
-): User {
+export function userFromLoginResponse(data: Record<string, unknown>, formUsername: string): User {
   const u = data.user as Record<string, unknown> | undefined
   const id = idFromUnknown(u, data)
 
@@ -74,12 +70,11 @@ export function userFromLoginResponse(
     asNonEmptyString(formUsername) ||
     'User'
 
-  const email =
-    asNonEmptyString(u?.email) ||
-    asNonEmptyString(data.email) ||
-    ''
-
-  const avatar = asNonEmptyString(u?.avatar) ?? asNonEmptyString(u?.photoURL) ?? asNonEmptyString(data.avatar)
+  const email = asNonEmptyString(u?.email) || asNonEmptyString(data.email) || ''
+  const avatar =
+    asNonEmptyString(u?.avatar) ??
+    asNonEmptyString(u?.photoURL) ??
+    asNonEmptyString(data.avatar)
 
   return avatar ? { id, name, email, avatar } : { id, name, email }
 }

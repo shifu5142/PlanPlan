@@ -12,23 +12,26 @@ import { FaGithub } from 'react-icons/fa'
 import { FcGoogle } from 'react-icons/fc'
 import { auth, googleProvider, githubProvider } from '@/app/services/auth/firebaseConfig'
 import { signInWithPopup } from 'firebase/auth'
+import { userFromLoginResponse } from '../../../lib/user-session'
 import { useUser } from '@/components/user-provider'
 ////////////////////////////////////////////////////////////////////////////////////////
-export default function LoginPage() {
+ function LoginPage() {
   const router = useRouter()
   const { setUser } = useUser()
+  const [googleUser, setGoogleUser] = useState({})
   const [isLoading, setIsLoading] = useState(false)
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
+  const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL?.replace(/\/$/, '') ?? ''
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     setErrorMessage('')
     setSuccessMessage('')
     try {
-      const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL?.replace(/\/$/, '') ?? ''
+      
       const response = await fetch(`${baseUrl}/auth/login`, {
         method: 'POST',
         headers: {
@@ -59,11 +62,21 @@ export default function LoginPage() {
     try {
       const result = await signInWithPopup(auth, googleProvider)
       const u = result.user
+      const idToken = await u.getIdToken();
       setUser({
         id: u.uid,
         name: u.displayName || u.email?.split('@')[0] || 'User',
         email: u.email || '',
       })
+      const response = await fetch(`${baseUrl}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ idToken }),
+      })
+      const res = await response.json()
+      localStorage.setItem("token", res.data)
       setSuccessMessage('Login successful')
       setTimeout(() => {
         router.push('/app/dashboard')
@@ -77,11 +90,21 @@ export default function LoginPage() {
     try {
       const result = await signInWithPopup(auth, githubProvider)
       const u = result.user
+      const idToken = await u.getIdToken();
       setUser({
         id: u.uid,
         name: u.displayName || u.email?.split('@')[0] || u.providerData[0]?.email?.split('@')[0] || 'User',
         email: u.email || u.providerData[0]?.email || '',
       })
+      const response = await fetch(`${baseUrl}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ idToken }),
+      })
+      const res = await response.json()
+      localStorage.setItem("token", res.data)
       setSuccessMessage('Login successful')
       setTimeout(() => {
         router.push('/app/dashboard')
@@ -170,3 +193,4 @@ export default function LoginPage() {
     </main>
   )
 }
+export default LoginPage

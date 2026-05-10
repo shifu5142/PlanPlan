@@ -42,7 +42,7 @@ function fetcher(key: string): Board | undefined {
   return getBoard(boardId)
 }
 
-export default function BoardPage({ params }: { params: Promise<{ boardId: string }> }) {
+function BoardPage({ params }: { params: Promise<{ boardId: string }> }) {
   const { boardId } = use(params)
   const router = useRouter()
   const { data: board } = useSWR(`board:${boardId}`, fetcher)
@@ -320,3 +320,5 @@ export default function BoardPage({ params }: { params: Promise<{ boardId: strin
     </div>
   )
 }
+
+export default BoardPage
