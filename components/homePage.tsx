@@ -2,13 +2,16 @@ import React from 'react'
 import {
   ArrowRight,
   Bot,
+  CheckCircle2,
   Kanban,
   LayoutDashboard,
+  ListTodo,
   ShieldCheck,
   Sparkles,
   Users,
   Zap,
 } from 'lucide-react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { HomeTestimonialsSection } from '@/components/home-testimonials'
 import { Button } from './ui/button'
@@ -133,6 +136,119 @@ function HomePage() {
                 Invite team members, assign tasks, and work together seamlessly across all your projects.
               </p>
             </article>
+          </div>
+        </div>
+      </section>
+
+      {/* What you can do — product screenshot */}
+      <section className="border-border border-t py-20 md:py-28">
+        <div className="mx-auto max-w-6xl px-4">
+          <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-14">
+            <div>
+              <p className="mb-3 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 font-medium text-primary text-xs uppercase tracking-wider">
+                <Sparkles className="size-3.5" aria-hidden />
+                See it in action
+              </p>
+              <h2 className="mb-4 text-balance text-3xl font-bold tracking-tight md:text-4xl">
+                What you can do with TaskFlow
+              </h2>
+              <p className="mb-8 max-w-lg text-pretty text-lg text-muted-foreground">
+                Plan work on boards, sharpen priorities with AI, and keep everyone aligned—from your first column to shipped
+                work.
+              </p>
+              <ul className="space-y-5">
+                <li className="flex gap-4">
+                  <span className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/15">
+                    <Kanban className="size-5" aria-hidden />
+                  </span>
+                  <div>
+                    <p className="font-semibold">Run Kanban boards your way</p>
+                    <p className="text-muted-foreground text-sm leading-relaxed">
+                      Customize columns and cards, move tasks through stages, and see status at a glance.
+                    </p>
+                  </div>
+                </li>
+                <li className="flex gap-4">
+                  <span className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-xl bg-chart-5/15 text-chart-5 ring-1 ring-chart-5/25">
+                    <Bot className="size-5" aria-hidden />
+                  </span>
+                  <div>
+                    <p className="font-semibold">Ask the AI assistant</p>
+                    <p className="text-muted-foreground text-sm leading-relaxed">
+                      Break tasks down, get next-step suggestions, and draft plans grounded in what’s on your board.
+                    </p>
+                  </div>
+                </li>
+                <li className="flex gap-4">
+                  <span className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-xl bg-chart-2/15 text-chart-2 ring-1 ring-chart-2/25">
+                    <LayoutDashboard className="size-5" aria-hidden />
+                  </span>
+                  <div>
+                    <p className="font-semibold">Dashboard overview</p>
+                    <p className="text-muted-foreground text-sm leading-relaxed">
+                      Jump between boards and flows from one place—ideal when you manage more than one project.
+                    </p>
+                  </div>
+                </li>
+                <li className="flex gap-4">
+                  <span className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-xl bg-muted text-foreground ring-1 ring-border">
+                    <Users className="size-5" aria-hidden />
+                  </span>
+                  <div>
+                    <p className="font-semibold">Collaborate with your team</p>
+                    <p className="text-muted-foreground text-sm leading-relaxed">
+                      Share context on cards so everyone knows who’s doing what and what ships next.
+                    </p>
+                  </div>
+                </li>
+                <li className="flex gap-4">
+                  <span className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-xl bg-muted text-primary ring-1 ring-primary/15">
+                    <ListTodo className="size-5" aria-hidden />
+                  </span>
+                  <div>
+                    <p className="font-semibold">Stay on top of the details</p>
+                    <p className="text-muted-foreground text-sm leading-relaxed">
+                      Capture descriptions, deadlines, and follow-ups so nothing slips through the cracks.
+                    </p>
+                  </div>
+                </li>
+              </ul>
+              <div className="mt-8 flex flex-wrap items-center gap-3">
+                <CheckCircle2 className="size-5 text-chart-2" aria-hidden />
+                <span className="text-muted-foreground text-sm">Sign in and start boarding in minutes.</span>
+                <Link href="/auth/register">
+                  <Button size="sm" className="gap-1.5 shadow-sm">
+                    Try TaskFlow
+                    <ArrowRight className="size-3.5" aria-hidden />
+                  </Button>
+                </Link>
+              </div>
+            </div>
+
+            <div>
+              <div className="relative mx-auto w-full max-w-xl lg:max-w-none">
+                <div
+                  aria-hidden
+                  className="absolute -inset-4 rounded-[2rem] bg-gradient-to-br from-primary/20 via-transparent to-chart-4/15 blur-2xl md:-inset-6"
+                />
+                <figure className="relative overflow-hidden rounded-2xl border border-border bg-card shadow-[0_24px_64px_-32px_rgb(15_23_42/0.45)] ring-1 ring-black/5 dark:shadow-[0_32px_80px_-40px_rgb(0_0_0/0.75)] dark:ring-white/10">
+                  <div className="relative aspect-[16/10] w-full bg-muted">
+                    <Image
+                      src="/web-screenshot.png"
+                      alt="TaskFlow web app showing a Kanban board with columns and task cards"
+                      fill
+                      className="object-cover object-left-top"
+                      sizes="(max-width: 1024px) 100vw, 50vw"
+                      priority={false}
+                    />
+                  </div>
+                  <figcaption className="flex items-center justify-between gap-2 border-border border-t bg-muted/40 px-4 py-3 text-muted-foreground text-xs backdrop-blur-sm dark:bg-muted/20">
+                    <span className="font-medium text-foreground/80">Live workspace preview</span>
+                    <span className="hidden sm:inline">Boards • Cards • Columns</span>
+                  </figcaption>
+                </figure>
+              </div>
+            </div>
           </div>
         </div>
       </section>
