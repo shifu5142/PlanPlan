@@ -10,6 +10,7 @@ import {
   Zap,
 } from 'lucide-react'
 import Link from 'next/link'
+import { HomeTestimonialsSection } from '@/components/home-testimonials'
 import { Button } from './ui/button'
 
 function HomePage() {
@@ -135,6 +136,8 @@ function HomePage() {
           </div>
         </div>
       </section>
+
+      <HomeTestimonialsSection />
 
       {/* CTA Section */}
       <section className="border-border border-t bg-card py-20 md:py-32">

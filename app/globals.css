@@ -120,6 +120,18 @@
   }
 }
 
+/* Home testimonials — scroll reveal (motion users only; see component for reduced-motion path) */
+@keyframes home-fade-up {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 1.25rem, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
