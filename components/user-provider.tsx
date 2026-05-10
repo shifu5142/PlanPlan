@@ -14,7 +14,10 @@ import { clearStoredUser, getStoredUser, setStoredUser } from '@/lib/user-sessio
 
 type UserContextValue = {
   user: User | null
+  userData: Record<string, unknown> | null
   setUser: (u: User) => void
+  setUserData: (data: Record<string, unknown> | null) => void
+  clearUserData: () => void
   clearUser: () => void
 }
 
@@ -24,6 +27,7 @@ const useIsoLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : use
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
   const [user, setUserState] = useState<User | null>(null)
+  const [userData, setUserDataState] = useState<Record<string, unknown> | null>(null)
 
   // Read persisted session before paint so children (e.g. login → setUser) see consistent storage.
   useIsoLayoutEffect(() => {
@@ -39,14 +43,23 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     setUserState(u)
   }, [])
 
+  const setUserData = useCallback((data: Record<string, unknown> | null) => {
+    setUserDataState(data)
+  }, [])
+
+  const clearUserData = useCallback(() => {
+    setUserDataState(null)
+  }, [])
+
   const clearUser = useCallback(() => {
     clearStoredUser()
     setUserState(null)
+    setUserDataState(null)
   }, [])
 
   const value = useMemo(
-    () => ({ user, setUser, clearUser }),
-    [user, setUser, clearUser],
+    () => ({ user, userData, setUser, setUserData, clearUserData, clearUser }),
+    [user, userData, setUser, setUserData, clearUserData, clearUser],
   )
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>

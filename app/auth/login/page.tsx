@@ -17,8 +17,7 @@ import { useUser } from '@/components/user-provider'
 ////////////////////////////////////////////////////////////////////////////////////////
  function LoginPage() {
   const router = useRouter()
-  const { setUser } = useUser()
-  const [googleUser, setGoogleUser] = useState({})
+  const { setUser, setUserData } = useUser()
   const [isLoading, setIsLoading] = useState(false)
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -26,6 +25,7 @@ import { useUser } from '@/components/user-provider'
   const [successMessage, setSuccessMessage] = useState('')
   const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL?.replace(/\/$/, '') ?? ''
   const handleSubmit = async (e: React.FormEvent) => {
+    let submittedUser: { id: unknown; name: unknown; email: unknown } | null = null
     e.preventDefault()
     setIsLoading(true)
     setErrorMessage('')
@@ -39,11 +39,43 @@ import { useUser } from '@/components/user-provider'
         },
         body: JSON.stringify({ username, password }),
       })
-      const data = await response.json()
+      const data = (await response.json()) as Record<string, unknown> & { success?: boolean }
       if (data.success) {
+        const body = data.data
+        let accessToken = typeof data.token === 'string' ? data.token.trim() : ''
+        if (!accessToken && typeof body === 'string') {
+          accessToken = body.trim()
+        }
+        if (!accessToken && body && typeof body === 'object' && !Array.isArray(body)) {
+          const nested = (body as { token?: unknown }).token
+          if (typeof nested === 'string') accessToken = nested.trim()
+        }
+
+        if (!accessToken) {
+          setSuccessMessage('')
+          setErrorMessage('Login failed: no token returned')
+          return
+        }
+
+        localStorage.setItem('token', accessToken)
         setSuccessMessage('Login successful')
-        localStorage.setItem("token", data.token);
-        setUser(userFromLoginResponse(data as Record<string, unknown>, username))
+        const payload =
+          body && typeof body === 'object' && !Array.isArray(body) ? (body as Record<string, unknown>) : null
+        submittedUser = {
+          id: payload?.id,
+          name: payload?.name,
+          email: payload?.email,
+        }
+        if (submittedUser.id != null && String(submittedUser.id).length > 0) {
+          setUser({
+            id: String(submittedUser.id),
+            name: String((submittedUser.name ?? username) || 'User'),
+            email: String(submittedUser.email ?? ''),
+          })
+        } else {
+          setUser(userFromLoginResponse(data, username))
+        }
+        setUserData(submittedUser as Record<string, unknown>)
         setTimeout(() => {
           router.push('/app/dashboard')
         }, 1500)
@@ -56,6 +88,7 @@ import { useUser } from '@/components/user-provider'
       setErrorMessage('login failed')
     } finally {
       setIsLoading(false)
+      console.log(submittedUser)
     }
   }
   const handleGoogleLogin = async () => {

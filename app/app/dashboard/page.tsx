@@ -21,6 +21,7 @@ import type { Board, User } from '@/lib/types'
 import { BOARD_COLORS } from '@/lib/types'
 import { useUser } from '@/components/user-provider'
 
+
 async function readJsonSafely<T>(response: Response): Promise<T> {
   const contentType = response.headers.get('content-type') ?? ''
   if (!contentType.includes('application/json')) {
@@ -28,6 +29,42 @@ async function readJsonSafely<T>(response: Response): Promise<T> {
     throw new Error(text || `Unexpected response (${response.status})`)
   }
   return (await response.json()) as T
+}
+
+/** MySQL row from `SELECT * FROM boards` → app `Board` shape. */
+function boardFromDbRow(row: Record<string, unknown>, viewer: User | null): Board {
+  const id = row.id != null ? String(row.id) : ''
+  const title = typeof row.title === 'string' ? row.title : ''
+  const rawDesc = row.description
+  const description =
+    typeof rawDesc === 'string' && rawDesc.trim() ? rawDesc.trim() : undefined
+  const color =
+    (typeof row.color === 'string' && row.color) ||
+    (typeof row.backgroundColor === 'string' && row.backgroundColor) ||
+    BOARD_COLORS[0]
+  const createdAt =
+    typeof row.created_at === 'string'
+      ? row.created_at
+      : typeof row.createdAt === 'string'
+        ? row.createdAt
+        : new Date().toISOString()
+  const updatedAt =
+    typeof row.updated_at === 'string'
+      ? row.updated_at
+      : typeof row.updatedAt === 'string'
+        ? row.updatedAt
+        : createdAt
+
+  return {
+    id,
+    title,
+    ...(description ? { description } : {}),
+    backgroundColor: color,
+    members: viewer ? [viewer] : [],
+    columns: [],
+    createdAt,
+    updatedAt,
+  }
 }
 
 /** Builds a dashboard board locally (no API). */
@@ -66,7 +103,6 @@ export default function DashboardPage() {
   const [newBoardTitle, setNewBoardTitle] = useState('')
   const [newBoardDescription, setNewBoardDescription] = useState('')
   const [selectedColor, setSelectedColor] = useState(BOARD_COLORS[0])
-
   useEffect(() => {
     const loadBoards = async () => {
       const token = localStorage.getItem('token')
@@ -77,22 +113,31 @@ export default function DashboardPage() {
       const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL?.replace(/\/$/, '') ?? ''
       if (!baseUrl) return
 
-      const response = await fetch(`${baseUrl}/app/dashboard`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-      })
-      const data = await readJsonSafely<{ success?: boolean; boards?: Board[]; message?: string }>(response)
-      if (!response.ok || data.success === false) {
-        throw new Error(data.message || `Failed to load boards (${response.status})`)
+      try {
+        const response = await fetch(`${baseUrl}/app/dashboard`, {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        const data = await readJsonSafely<{
+          success?: boolean
+          boards?: Record<string, unknown>[]
+          message?: string
+        }>(response)
+        if (!response.ok || data.success === false) {
+          throw new Error(data.message || `Failed to load boards (${response.status})`)
+        }
+        const rows = Array.isArray(data.boards) ? data.boards : []
+        setBoards(rows.map((row) => boardFromDbRow(row, user)))
+      } catch (err) {
+        console.error(err)
+        setBoards([])
       }
-      setBoards(Array.isArray(data.boards) ? data.boards : [])
     }
 
     void loadBoards()
-  }, [])
+  }, [user?.id])
 
   const handleCreateBoard = async () => {
     if (!newBoardTitle.trim()) return
@@ -116,16 +161,41 @@ export default function DashboardPage() {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ title, description, color, user_id: user?.id ?? null }),
+      body: JSON.stringify({
+        title,
+        description: description.trim() ? description.trim() : null,
+        color,
+      }),
     })
-    const data = await readJsonSafely<{ success?: boolean; board?: Board; message?: string }>(response)
+    const data = await readJsonSafely<{
+      success?: boolean
+      message?: string
+      data?: {
+        id: number | string
+        title: string
+        description?: string | null
+        color: string
+        user_id?: number | string
+      }
+    }>(response)
     if (!response.ok || data.success === false) {
       throw new Error(data.message || `Failed to create board (${response.status})`)
     }
 
-    const serverBoard = data.board
-    if (serverBoard?.id) {
+    const row = data.data
+    if (row != null && row.id != null && String(row.id).length > 0) {
+      const serverBoard = boardFromDbRow(
+        {
+          id: row.id,
+          title: row.title,
+          description: row.description ?? null,
+          color: row.color,
+          user_id: row.user_id,
+        },
+        user,
+      )
       setBoards((prev) => {
         const withoutOptimistic = prev.filter((b) => b.id !== board.id)
         return [serverBoard, ...withoutOptimistic]
