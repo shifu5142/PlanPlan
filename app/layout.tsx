@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { AuthNotFoundGate } from '@/components/auth-not-found-gate'
 import { FullPageLoadGate } from '@/components/full-page-load-gate'
 import { UserProvider } from '@/components/user-provider'
 import './globals.css'
@@ -40,7 +41,9 @@ function RootLayout({
     <html lang="en" className="bg-background">
       <body className="font-sans antialiased">
         <FullPageLoadGate>
-          <UserProvider>{children}</UserProvider>
+          <UserProvider>
+            <AuthNotFoundGate>{children}</AuthNotFoundGate>
+          </UserProvider>
         </FullPageLoadGate>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
