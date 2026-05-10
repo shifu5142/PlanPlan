@@ -2,10 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-<<<<<<< HEAD
 import { usePathname } from 'next/navigation'
-=======
->>>>>>> 5145a8cd9bf545d1713bda93730c11d2f28b92e4
 import NotFound from '@/app/not-found'
 import { PageLoadingIndicator } from '@/components/page-loading-indicator'
 import { Card, CardContent } from '@/components/ui/card'
@@ -20,19 +17,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
-<<<<<<< HEAD
-import { Bot, CircleUser, LayoutDashboard, Plus, Users } from 'lucide-react'
+import { Bot, CircleUser, Kanban, LayoutDashboard, Plus, Sparkles, Users } from 'lucide-react'
 import type { Board, User } from '@/lib/types'
 import { BOARD_COLORS } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { useUser } from '@/components/user-provider'
 import { useUserMenuControl } from '@/components/user-menu-control'
-=======
-import { Plus, Users } from 'lucide-react'
-import type { Board, User } from '@/lib/types'
-import { BOARD_COLORS } from '@/lib/types'
-import { useUser } from '@/components/user-provider'
->>>>>>> 5145a8cd9bf545d1713bda93730c11d2f28b92e4
 
 
 async function readJsonSafely<T>(response: Response): Promise<T> {
@@ -107,7 +97,6 @@ function createStaticBoard(
   }
 }
 
-<<<<<<< HEAD
 function DashboardSideNav() {
   const pathname = usePathname()
   const menu = useUserMenuControl()
@@ -117,25 +106,26 @@ function DashboardSideNav() {
       ? pathname === href
       : pathname === href || pathname.startsWith(`${href}/`)
     return cn(
-      'flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+      'flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200',
       active
-        ? 'bg-primary/10 text-primary shadow-sm ring-1 ring-primary/20'
-        : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+        ? 'bg-primary/10 text-primary shadow-sm ring-1 ring-primary/25'
+        : 'text-muted-foreground hover:translate-x-0.5 hover:bg-muted/90 hover:text-foreground'
     )
   }
 
   return (
-    <aside className="flex shrink-0 flex-row flex-wrap items-center gap-2 border-border border-b bg-sidebar px-3 py-2.5 shadow-sm md:sticky md:top-14 md:h-[calc(100vh-3.5rem)] md:w-52 md:flex-col md:items-stretch md:gap-4 md:border-r md:px-4 md:py-5">
-      <p className="hidden w-full text-muted-foreground text-xs font-medium uppercase tracking-wide md:block">
+    <aside className="flex shrink-0 flex-row flex-wrap items-center gap-2 border-border border-b bg-sidebar/95 bg-gradient-to-b from-sidebar to-muted/30 px-3 py-2.5 shadow-sm ring-1 ring-foreground/[0.06] md:sticky md:top-14 md:h-[calc(100vh-3.5rem)] md:w-52 md:flex-col md:items-stretch md:gap-4 md:border-r md:px-4 md:py-5">
+      <p className="hidden w-full text-muted-foreground text-xs font-semibold uppercase tracking-wider md:flex md:items-center md:gap-2">
+        <Sparkles className="size-3.5 text-primary/80" aria-hidden />
         Navigate
       </p>
       <nav className="flex min-w-0 flex-1 flex-row gap-1 md:flex-col md:flex-none">
-        <Link href="/app/dashboard" className={linkClass('/app/dashboard', true)}>
-          <LayoutDashboard className="size-4 shrink-0" aria-hidden />
+        <Link href="/app/dashboard" className={cn(linkClass('/app/dashboard', true), 'group')}>
+          <LayoutDashboard className="size-4 shrink-0 opacity-90 transition-transform duration-200 group-hover:scale-110" aria-hidden />
           Dashboard
         </Link>
-        <Link href="/app/ai" className={linkClass('/app/ai')}>
-          <Bot className="size-4 shrink-0" aria-hidden />
+        <Link href="/app/ai" className={cn(linkClass('/app/ai'), 'group')}>
+          <Bot className="size-4 shrink-0 opacity-90 transition-transform duration-200 group-hover:scale-110" aria-hidden />
           AI Assistant
         </Link>
       </nav>
@@ -143,7 +133,7 @@ function DashboardSideNav() {
         type="button"
         variant="outline"
         size="sm"
-        className="gap-2 md:w-full"
+        className="gap-2 border-primary/15 shadow-sm transition-all duration-200 hover:border-primary/30 hover:bg-primary/5 hover:shadow-md md:w-full"
         aria-haspopup="menu"
         aria-label="Open account menu"
         onClick={() => menu?.openUserMenu()}
@@ -155,8 +145,6 @@ function DashboardSideNav() {
   )
 }
 
-=======
->>>>>>> 5145a8cd9bf545d1713bda93730c11d2f28b92e4
 export default function DashboardPage() {
   const { user } = useUser()
   const [tokenChecked, setTokenChecked] = useState(false)
@@ -279,20 +267,21 @@ export default function DashboardPage() {
   }
 
   return (
-<<<<<<< HEAD
     <div className="flex min-h-[calc(100vh-3.5rem)] flex-col md:flex-row">
       <DashboardSideNav />
       <div className="min-w-0 flex-1 p-4 md:p-6 lg:p-8">
       <div className="mx-auto max-w-7xl">
-=======
-    <div className="p-4 md:p-6 lg:p-8">
-      <div className="max-w-7xl mx-auto">
->>>>>>> 5145a8cd9bf545d1713bda93730c11d2f28b92e4
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold">Your Boards</h1>
-            <p className="text-muted-foreground mt-1">
+        <div className="mb-8 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-1">
+            <h1 className="flex flex-wrap items-center gap-3 text-2xl font-bold tracking-tight md:text-3xl">
+              <span className="flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary shadow-inner ring-1 ring-primary/20 transition-all duration-200 hover:bg-primary/[0.14] hover:shadow-md md:size-12">
+                <Kanban className="size-6 md:size-7" aria-hidden />
+              </span>
+              Your Boards
+            </h1>
+            <p className="text-muted-foreground mt-2 flex flex-wrap items-center gap-2 text-sm md:text-base">
+              <Sparkles className="hidden size-4 text-primary/70 sm:inline" aria-hidden />
               {user
                 ? `Welcome back, ${user.name} — manage and organize your projects`
                 : 'Manage and organize your projects'}
@@ -300,8 +289,8 @@ export default function DashboardPage() {
           </div>
           <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
             <DialogTrigger asChild>
-              <Button className="gap-2">
-                <Plus className="h-4 w-4" />
+              <Button className="gap-2 shadow-sm transition-all duration-200 hover:shadow-md active:scale-[0.98]">
+                <Plus className="size-4" />
                 <span className="hidden sm:inline">New Board</span>
               </Button>
             </DialogTrigger>
@@ -326,8 +315,8 @@ export default function DashboardPage() {
                       <button
                         key={c}
                         type="button"
-                        className={`w-8 h-8 rounded-md transition-all ${
-                          selectedColor === c ? 'ring-2 ring-offset-2 ring-offset-background ring-primary' : ''
+                        className={`h-8 w-8 rounded-md transition-all duration-200 hover:scale-110 active:scale-95 ${
+                          selectedColor === c ? 'ring-2 ring-offset-2 ring-offset-background ring-primary shadow-sm' : ''
                         }`}
                         style={{ backgroundColor: c }}
                         onClick={() => setSelectedColor(c)}
@@ -359,17 +348,20 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {boards.map((board) => (
               <Link key={board.id} href={`/app/board/${board.id}`}>
-                <Card className="group cursor-pointer transition-all hover:ring-2 hover:ring-primary/50 overflow-hidden">
-                  <div className="h-24 md:h-28" style={{ backgroundColor: board.backgroundColor }} />
-                  <CardContent className="p-4">
-                    <h3 className="font-semibold text-lg truncate group-hover:text-primary transition-colors">
+                <Card className="group cursor-pointer overflow-hidden shadow-sm ring-1 ring-transparent transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:ring-primary/35">
+                  <div
+                    className="h-24 transition-transform duration-300 group-hover:scale-[1.02] md:h-28"
+                    style={{ backgroundColor: board.backgroundColor }}
+                  />
+                  <CardContent className="p-4 transition-colors duration-200 group-hover:bg-muted/40">
+                    <h3 className="truncate font-semibold text-lg transition-colors duration-200 group-hover:text-primary">
                       {board.title}
                     </h3>
                     {board.description && (
                       <p className="text-sm text-muted-foreground line-clamp-2 mt-1">{board.description}</p>
                     )}
-                    <div className="flex items-center gap-2 mt-2 text-muted-foreground text-sm">
-                      <Users className="h-4 w-4" />
+                    <div className="mt-2 flex items-center gap-2 text-muted-foreground text-sm transition-colors duration-200 group-hover:text-foreground">
+                      <Users className="size-4 transition-transform duration-200 group-hover:scale-110" />
                       <span>
                         {board.members.length} member{board.members.length !== 1 ? 's' : ''}
                       </span>
@@ -382,10 +374,10 @@ export default function DashboardPage() {
             {/* Create New Board Card */}
             <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
               <DialogTrigger asChild>
-                <Card className="cursor-pointer border-dashed hover:border-primary hover:bg-secondary/50 transition-all min-h-[160px] md:min-h-[180px] flex items-center justify-center">
-                  <CardContent className="flex flex-col items-center justify-center text-muted-foreground p-4">
-                    <div className="h-12 w-12 rounded-full bg-secondary flex items-center justify-center mb-3">
-                      <Plus className="h-6 w-6" />
+                <Card className="group/card flex min-h-[160px] cursor-pointer flex-col items-center justify-center border-dashed transition-all duration-300 hover:-translate-y-0.5 hover:border-primary hover:bg-secondary/70 hover:shadow-md md:min-h-[180px]">
+                  <CardContent className="flex flex-col items-center justify-center p-4 text-muted-foreground transition-colors duration-300 group-hover/card:text-foreground">
+                    <div className="mb-3 flex size-12 items-center justify-center rounded-full bg-secondary shadow-inner ring-2 ring-transparent transition-all duration-300 group-hover/card:scale-105 group-hover/card:bg-primary/10 group-hover/card:ring-primary/20">
+                      <Plus className="size-6 text-primary transition-transform duration-300 group-hover/card:rotate-90" />
                     </div>
                     <span className="font-medium">Create new board</span>
                   </CardContent>
@@ -396,20 +388,22 @@ export default function DashboardPage() {
 
         {/* Empty State */}
         {boards.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="h-16 w-16 rounded-full bg-secondary flex items-center justify-center mx-auto mb-4">
-              <Plus className="h-8 w-8 text-muted-foreground" />
+          <div className="rounded-2xl border border-dashed bg-muted/30 py-14 text-center shadow-inner transition-colors duration-300 hover:bg-muted/40">
+            <div className="mx-auto mb-4 flex size-16 items-center justify-center rounded-full bg-background shadow-md ring-2 ring-primary/10 transition-transform duration-300 hover:scale-105">
+              <Plus className="size-8 text-primary" />
             </div>
-            <h3 className="text-lg font-medium mb-2">No boards yet</h3>
-            <p className="text-muted-foreground mb-4">Create your first board to get started</p>
-            <Button onClick={() => setIsCreateOpen(true)}>Create Board</Button>
+            <h3 className="mb-2 text-lg font-semibold">No boards yet</h3>
+            <p className="mb-6 text-muted-foreground">Create your first board to get started</p>
+            <Button
+              onClick={() => setIsCreateOpen(true)}
+              className="transition-all duration-200 hover:shadow-md active:scale-[0.98]"
+            >
+              Create Board
+            </Button>
           </div>
         ) : null}
       </div>
-<<<<<<< HEAD
       </div>
-=======
->>>>>>> 5145a8cd9bf545d1713bda93730c11d2f28b92e4
     </div>
   )
 }
