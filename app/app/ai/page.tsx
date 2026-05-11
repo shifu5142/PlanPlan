@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { Bot, Send, Sparkles, ListTodo, Target, ArrowRight } from 'lucide-react'
+import { Bot, Send, Sparkles, ListTodo, Target, ArrowRight, User } from 'lucide-react'
 import { getChatMessages, addChatMessage, clearChatMessages } from '@/lib/store'
 import { currentUser } from '@/lib/store'
 import type { ChatMessage } from '@/lib/types'
@@ -145,8 +145,8 @@ function AIPageContent() {
                     <Bot className="h-5 w-5 text-white" />
                   </AvatarFallback>
                 ) : (
-                  <AvatarFallback className="bg-secondary text-secondary-foreground font-medium">
-                    {currentUser.name.split(' ').map(n => n[0]).join('')}
+                  <AvatarFallback className="bg-secondary text-secondary-foreground">
+                    <User className="h-5 w-5" />
                   </AvatarFallback>
                 )}
               </Avatar>

@@ -70,31 +70,47 @@ function boardFromDbRow(row: Record<string, unknown>, viewer: User | null): Boar
   }
 }
 
-/** Builds a dashboard board locally (no API). */
-function createStaticBoard(
+/** Creates a board via backend and maps response to app `Board` shape. */
+async function createBoard(
   title: string,
   description: string,
   backgroundColor: string,
-  viewer: User | null
-): Board {
+  viewer: User | null,
+  token: string,
+  baseUrl: string
+): Promise<Board> {
   const trimmed = title.trim()
   const desc = description.trim()
-  const now = new Date().toISOString()
-  const id =
-    typeof crypto !== 'undefined' && 'randomUUID' in crypto
-      ? crypto.randomUUID()
-      : `b-${Date.now()}-${Math.random().toString(16).slice(2)}`
-
-  return {
-    id,
-    title: trimmed,
-    ...(desc ? { description: desc } : {}),
-    backgroundColor,
-    members: viewer ? [viewer] : [],
-    columns: [],
-    createdAt: now,
-    updatedAt: now,
+  const response = await fetch(`${baseUrl}/app/dashboard`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      title: trimmed,
+      description: desc ? desc : null,
+      color: backgroundColor,
+    }),
+  })
+  const data = await readJsonSafely<{
+    success?: boolean
+    message?: string
+    data?: {
+      id: number | string
+      title: string
+      description?: string | null
+      color: string
+      user_id?: number | string
+      created_at?: string
+      updated_at?: string
+    }
+  }>(response)
+  if (!response.ok || data.success === false || !data.data) {
+    throw new Error(data.message || `Failed to create board (${response.status})`)
   }
+
+  return boardFromDbRow(data.data as unknown as Record<string, unknown>, viewer)
 }
 
 function DashboardSideNav() {
@@ -197,60 +213,19 @@ export default function DashboardPage() {
     const description = newBoardDescription
     const color = selectedColor
 
-    const board = createStaticBoard(title, description, color, user)
-    setBoards((prev) => [board, ...prev])
-    setNewBoardTitle('')
-    setNewBoardDescription('')
-    setSelectedColor(BOARD_COLORS[0])
-    setIsCreateOpen(false)
-
     const token = localStorage.getItem('token')
     const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL?.replace(/\/$/, '') ?? ''
     if (!token || !baseUrl) return
 
-    const response = await fetch(`${baseUrl}/app/dashboard`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        title,
-        description: description.trim() ? description.trim() : null,
-        color,
-      }),
-    })
-    const data = await readJsonSafely<{
-      success?: boolean
-      message?: string
-      data?: {
-        id: number | string
-        title: string
-        description?: string | null
-        color: string
-        user_id?: number | string
-      }
-    }>(response)
-    if (!response.ok || data.success === false) {
-      throw new Error(data.message || `Failed to create board (${response.status})`)
-    }
-
-    const row = data.data
-    if (row != null && row.id != null && String(row.id).length > 0) {
-      const serverBoard = boardFromDbRow(
-        {
-          id: row.id,
-          title: row.title,
-          description: row.description ?? null,
-          color: row.color,
-          user_id: row.user_id,
-        },
-        user,
-      )
-      setBoards((prev) => {
-        const withoutOptimistic = prev.filter((b) => b.id !== board.id)
-        return [serverBoard, ...withoutOptimistic]
-      })
+    try {
+      const createdBoard = await createBoard(title, description, color, user, token, baseUrl)
+      setBoards((prev) => [createdBoard, ...prev])
+      setNewBoardTitle('')
+      setNewBoardDescription('')
+      setSelectedColor(BOARD_COLORS[0])
+      setIsCreateOpen(false)
+    } catch (err) {
+      console.error(err)
     }
   }
 
