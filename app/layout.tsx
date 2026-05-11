@@ -14,11 +14,15 @@ export const metadata: Metadata = {
   description: 'Manage your projects with AI-powered insights and Kanban boards',
   generator: 'v0.app',
   icons: {
+<<<<<<< HEAD
     icon: [
       { url: '/icon.svg', type: 'image/svg+xml' },
       { url: '/favicon.ico', sizes: '32x32' },
     ],
     apple: '/icon.svg',
+=======
+    icon: [{ url: '/icon.svg', type: 'image/svg+xml' }],
+>>>>>>> 49e5b84437ee1e65fd2a0242a88d6cadd9ca176f
   },
 }
 

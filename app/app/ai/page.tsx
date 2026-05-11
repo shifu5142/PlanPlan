@@ -1,29 +1,17 @@
 'use client'
 
 import { useState, useRef, useEffect, Suspense } from 'react'
-import { useSearchParams } from 'next/navigation'
 import useSWR from 'swr'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { Bot, Send, Sparkles, ListTodo, Target, ArrowRight } from 'lucide-react'
-import { getBoards, getBoard, getCard, getChatMessages, addChatMessage, clearChatMessages } from '@/lib/store'
+import { Bot, Send, Sparkles, ListTodo, Target, ArrowRight, User } from 'lucide-react'
+import { getChatMessages, addChatMessage, clearChatMessages } from '@/lib/store'
 import { currentUser } from '@/lib/store'
-import type { Board, ChatMessage } from '@/lib/types'
+import type { ChatMessage } from '@/lib/types'
 import { cn } from '@/lib/utils'
-
-function boardsFetcher(): Board[] {
-  return getBoards()
-}
 
 function messagesFetcher(): ChatMessage[] {
   return getChatMessages()
@@ -37,31 +25,15 @@ const quickActions = [
 ]
 
 function AIPageContent() {
-  const searchParams = useSearchParams()
-  const initialBoardId = searchParams.get('boardId')
-  const initialCardId = searchParams.get('cardId')
-
-  const { data: boards = [] } = useSWR('boards', boardsFetcher)
   const { data: messages = [], mutate: mutateMessages } = useSWR('messages', messagesFetcher, {
     refreshInterval: 100,
   })
   const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL?.replace(/\/$/, '') ?? ''
-  const [selectedBoardId, setSelectedBoardId] = useState<string>(initialBoardId || '')
-  const [selectedCardId, setSelectedCardId] = useState<string>(initialCardId || '')
   const [inputValue, setInputValue] = useState('')
   const [isTyping, setIsTyping] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   /** Avoid duplicate greeting in React Strict Mode; reset when chat is cleared. */
   const greetingSeededRef = useRef(false)
-
-  const selectedBoard = selectedBoardId ? getBoard(selectedBoardId) : undefined
-  const selectedCard = selectedBoardId && selectedCardId ? getCard(selectedBoardId, selectedCardId) : undefined
-
-  // Set initial values from URL params
-  useEffect(() => {
-    if (initialBoardId) setSelectedBoardId(initialBoardId)
-    if (initialCardId) setSelectedCardId(initialCardId)
-  }, [initialBoardId, initialCardId])
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -122,6 +94,7 @@ function AIPageContent() {
   }
 
   return (
+<<<<<<< HEAD
     <div className="relative flex flex-col overflow-hidden h-[calc(100vh-3.5rem)] md:h-[calc(100vh-3.5rem)]">
       {/* Ambient background (decorative only) */}
       <div
@@ -168,12 +141,38 @@ function AIPageContent() {
                 size="sm"
                 className="shrink-0 text-muted-foreground hover:text-foreground"
                 onClick={handleClearChat}
+=======
+    <div className="flex flex-col h-screen bg-background">
+      {/* Header */}
+      <header className="shrink-0 border-b border-border/50 bg-card/80 backdrop-blur-xl">
+        <div className="max-w-4xl mx-auto px-6 py-5">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                  <Bot className="h-6 w-6 text-white" />
+                </div>
+                <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-emerald-400 border-2 border-card" />
+              </div>
+              <div>
+                <h1 className="text-xl font-semibold tracking-tight text-foreground">AI Assistant</h1>
+                <p className="text-sm text-muted-foreground">Intelligent task management</p>
+              </div>
+            </div>
+            {messages.length > 0 && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={handleClearChat}
+                className="text-muted-foreground hover:text-foreground transition-colors"
+>>>>>>> 49e5b84437ee1e65fd2a0242a88d6cadd9ca176f
               >
                 Clear chat
               </Button>
             )}
           </div>
 
+<<<<<<< HEAD
           {/* Context Selectors */}
           <div className="mt-5 rounded-xl border border-border/70 bg-muted/25 p-4 shadow-[inset_0_1px_0_0_rgb(255_255_255/0.06)] backdrop-blur-sm dark:border-white/10 dark:bg-white/[0.03]">
             <p className="mb-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">
@@ -240,16 +239,24 @@ function AIPageContent() {
               )}
             </div>
           </div>
+=======
+>>>>>>> 49e5b84437ee1e65fd2a0242a88d6cadd9ca176f
         </div>
       </header>
 
       {/* Messages Area */}
+<<<<<<< HEAD
       <ScrollArea className="relative flex-1 min-h-0">
         <div className="mx-auto max-w-3xl space-y-5 px-4 py-6">
+=======
+      <ScrollArea className="flex-1">
+        <div className="max-w-4xl mx-auto px-6 py-8 space-y-6">
+>>>>>>> 49e5b84437ee1e65fd2a0242a88d6cadd9ca176f
           {messages.map((message) => (
             <div
               key={message.id}
               className={cn(
+<<<<<<< HEAD
                 'flex gap-3 animate-in fade-in-0 slide-in-from-bottom-2 duration-300',
                 message.role === 'user' ? 'flex-row-reverse' : 'flex-row'
               )}
@@ -267,11 +274,29 @@ function AIPageContent() {
                 ) : (
                   <AvatarFallback className="bg-secondary font-medium text-secondary-foreground text-xs">
                     {currentUser.name.split(' ').map((n) => n[0]).join('')}
+=======
+                'flex gap-4',
+                message.role === 'user' ? 'flex-row-reverse' : 'flex-row'
+              )}
+            >
+              <Avatar className={cn(
+                "h-10 w-10 shrink-0 ring-2 ring-offset-2 ring-offset-background",
+                message.role === 'assistant' ? "ring-emerald-500/30" : "ring-border"
+              )}>
+                {message.role === 'assistant' ? (
+                  <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-emerald-600">
+                    <Bot className="h-5 w-5 text-white" />
+                  </AvatarFallback>
+                ) : (
+                  <AvatarFallback className="bg-secondary text-secondary-foreground">
+                    <User className="h-5 w-5" />
+>>>>>>> 49e5b84437ee1e65fd2a0242a88d6cadd9ca176f
                   </AvatarFallback>
                 )}
               </Avatar>
               <div
                 className={cn(
+<<<<<<< HEAD
                   'max-w-[min(80%,28rem)] rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm',
                   message.role === 'user'
                     ? 'bg-primary text-primary-foreground shadow-[0_8px_32px_-12px_rgb(59_130_246/0.55)]'
@@ -279,11 +304,21 @@ function AIPageContent() {
                 )}
               >
                 <p className="whitespace-pre-wrap">{message.content}</p>
+=======
+                  'rounded-2xl px-5 py-3.5 max-w-[75%] shadow-sm',
+                  message.role === 'user'
+                    ? 'bg-emerald-600 text-white'
+                    : 'bg-card border border-border/50'
+                )}
+              >
+                <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
+>>>>>>> 49e5b84437ee1e65fd2a0242a88d6cadd9ca176f
               </div>
             </div>
           ))}
 
           {isTyping && (
+<<<<<<< HEAD
             <div className="flex animate-in fade-in-0 gap-3 duration-200">
               <Avatar className="h-9 w-9 shrink-0 ring-2 ring-background shadow-sm">
                 <AvatarFallback className="bg-gradient-to-br from-primary/25 to-primary/10 text-primary">
@@ -304,6 +339,19 @@ function AIPageContent() {
                     className="h-2 w-2 rounded-full bg-primary/60 motion-safe:animate-bounce dark:bg-primary/70"
                     style={{ animationDelay: '300ms' }}
                   />
+=======
+            <div className="flex gap-4">
+              <Avatar className="h-10 w-10 shrink-0 ring-2 ring-emerald-500/30 ring-offset-2 ring-offset-background">
+                <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-emerald-600">
+                  <Bot className="h-5 w-5 text-white" />
+                </AvatarFallback>
+              </Avatar>
+              <div className="bg-card border border-border/50 rounded-2xl px-5 py-4 shadow-sm">
+                <div className="flex gap-1.5">
+                  <span className="h-2 w-2 bg-emerald-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <span className="h-2 w-2 bg-emerald-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <span className="h-2 w-2 bg-emerald-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+>>>>>>> 49e5b84437ee1e65fd2a0242a88d6cadd9ca176f
                 </div>
               </div>
             </div>
@@ -314,10 +362,17 @@ function AIPageContent() {
       </ScrollArea>
 
       {/* Input Area */}
+<<<<<<< HEAD
       <footer className="shrink-0 border-t border-border/80 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/65">
         <div className="mx-auto max-w-3xl px-4 py-4">
           {/* Quick Actions */}
           <div className="mb-3 flex flex-wrap gap-2">
+=======
+      <footer className="shrink-0 border-t border-border/50 bg-card/80 backdrop-blur-xl">
+        <div className="max-w-4xl mx-auto px-6 py-5">
+          {/* Quick Actions */}
+          <div className="flex flex-wrap gap-2 mb-4">
+>>>>>>> 49e5b84437ee1e65fd2a0242a88d6cadd9ca176f
             {quickActions.map((action) => {
               const Icon = action.icon
               return (
@@ -325,7 +380,11 @@ function AIPageContent() {
                   key={action.label}
                   variant="outline"
                   size="sm"
+<<<<<<< HEAD
                   className="h-8 gap-2 border-border/80 bg-background/50 text-muted-foreground shadow-sm transition-[transform,box-shadow,border-color,background-color] duration-300 ease-out hover:-translate-y-0.5 hover:border-primary/25 hover:bg-primary/[0.06] hover:text-foreground motion-reduce:hover:translate-y-0 dark:bg-white/[0.03] dark:hover:bg-primary/10"
+=======
+                  className="gap-2 bg-secondary/50 border-border/50 hover:bg-secondary hover:border-emerald-500/30 hover:text-emerald-500 transition-all duration-200"
+>>>>>>> 49e5b84437ee1e65fd2a0242a88d6cadd9ca176f
                   onClick={() => handleSend(action.prompt)}
                 >
                   <Icon className="h-3.5 w-3.5 text-primary" />
@@ -336,6 +395,7 @@ function AIPageContent() {
           </div>
 
           {/* Input */}
+<<<<<<< HEAD
           <div className="flex gap-2 rounded-2xl border border-border/80 bg-muted/30 p-1.5 pl-2 shadow-[inset_0_1px_0_0_rgb(255_255_255/0.05)] backdrop-blur-sm dark:border-white/10 dark:bg-white/[0.04]">
             <Input
               placeholder="Ask me anything about your tasks..."
@@ -352,6 +412,25 @@ function AIPageContent() {
               aria-label="Send message"
             >
               <Send className="h-4 w-4" />
+=======
+          <div className="flex gap-3">
+            <div className="flex-1 relative">
+              <Input
+                placeholder="Ask me anything about your tasks..."
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
+                className="h-12 bg-secondary/50 border-border/50 pl-5 pr-4 text-sm placeholder:text-muted-foreground/70 focus-visible:ring-emerald-500/30 focus-visible:border-emerald-500/50"
+              />
+            </div>
+            <Button 
+              onClick={() => handleSend()} 
+              disabled={!inputValue.trim() || isTyping}
+              size="lg"
+              className="h-12 px-5 bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 transition-all duration-200 disabled:opacity-50"
+            >
+              <Send className="h-5 w-5" />
+>>>>>>> 49e5b84437ee1e65fd2a0242a88d6cadd9ca176f
             </Button>
           </div>
         </div>
@@ -362,6 +441,7 @@ function AIPageContent() {
 
 function AIPage() {
   return (
+<<<<<<< HEAD
     <Suspense
       fallback={
         <div className="relative flex h-[calc(100vh-3.5rem)] flex-col items-center justify-center gap-4 overflow-hidden bg-background">
@@ -378,9 +458,22 @@ function AIPage() {
         </div>
       }
     >
+=======
+    <Suspense fallback={
+      <div className="flex items-center justify-center h-screen bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center animate-pulse">
+            <Bot className="h-6 w-6 text-white" />
+          </div>
+          <p className="text-sm text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    }>
+>>>>>>> 49e5b84437ee1e65fd2a0242a88d6cadd9ca176f
       <AIPageContent />
     </Suspense>
   )
 }
 
 export default AIPage
+
