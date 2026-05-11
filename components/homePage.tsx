@@ -2,7 +2,11 @@ import React from 'react'
 import {
   ArrowRight,
   Bot,
+<<<<<<< HEAD
   CheckCircle2,
+=======
+  Check,
+>>>>>>> c5d1f4e285a6103987385c0ddfd21fcb6b9a598d
   Kanban,
   LayoutDashboard,
   ListTodo,
@@ -96,6 +100,7 @@ function HomePage() {
         </div>
       </div>
 
+<<<<<<< HEAD
       {/* What you can do — product screenshot */}
       <section className="border-border border-t py-20 md:py-28">
         <div className="mx-auto max-w-6xl px-4">
@@ -176,11 +181,67 @@ function HomePage() {
                   <Button size="sm" className="gap-1.5 shadow-sm">
                     Try TaskFlow
                     <ArrowRight className="size-3.5" aria-hidden />
+=======
+      {/* Product Preview Section */}
+      <section className="relative border-border border-t py-20 md:py-28">
+        <div className="-z-10 pointer-events-none absolute inset-0 overflow-hidden">
+          <div className="absolute top-1/2 left-1/2 h-[28rem] w-[28rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/10 blur-3xl" />
+        </div>
+        <div className="mx-auto max-w-6xl px-4">
+          <div className="grid items-center gap-10 md:grid-cols-2 md:gap-14">
+            {/* Copy */}
+            <div>
+              <div className="mb-5 inline-flex items-center gap-2 rounded-full bg-chart-4/10 px-3.5 py-1.5 font-medium text-chart-4 text-xs shadow-sm ring-1 ring-chart-4/20">
+                <LayoutDashboard className="size-3.5" aria-hidden />
+                A peek inside your dashboard
+              </div>
+              <h2 className="mb-4 text-balance text-3xl font-bold tracking-tight md:text-4xl">
+                Everything you need, the moment you{' '}
+                <span className="bg-gradient-to-br from-primary to-chart-4 bg-clip-text text-transparent">
+                  sign in
+                </span>
+              </h2>
+              <p className="mb-6 text-pretty text-lg text-muted-foreground">
+                Land straight on your personal workspace. All of your boards, teammates, and AI helpers
+                are one click away — no setup required.
+              </p>
+
+              <ul className="mb-8 space-y-3">
+                {[
+                  'See every board you own at a glance, with members and progress',
+                  'Spin up a new board in seconds with the +New Board shortcut',
+                  'Jump back into recent work or open the AI Assistant from the sidebar',
+                  'Manage your account, theme, and preferences from a single place',
+                ].map((item) => (
+                  <li key={item} className="flex items-start gap-3">
+                    <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-primary/12 text-primary ring-1 ring-primary/20">
+                      <Check className="size-3.5" aria-hidden />
+                    </span>
+                    <span className="text-foreground/90 leading-relaxed">{item}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <Link href="/auth/register">
+                  <Button className="group w-full gap-2 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md sm:w-auto active:translate-y-0 active:scale-[0.98]">
+                    Create your dashboard
+                    <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-0.5" aria-hidden />
+                  </Button>
+                </Link>
+                <Link href="/auth/login">
+                  <Button
+                    variant="outline"
+                    className="w-full border-primary/25 transition-all duration-300 hover:border-primary/40 hover:bg-primary/10 sm:w-auto active:scale-[0.98]"
+                  >
+                    Sign in
+>>>>>>> c5d1f4e285a6103987385c0ddfd21fcb6b9a598d
                   </Button>
                 </Link>
               </div>
             </div>
 
+<<<<<<< HEAD
             <div>
               <div className="relative mx-auto w-full max-w-xl lg:max-w-none">
                 <div
@@ -203,6 +264,28 @@ function HomePage() {
                     <span className="hidden sm:inline">Boards • Cards • Columns</span>
                   </figcaption>
                 </figure>
+=======
+            {/* Screenshot */}
+            <div className="group relative">
+              <div className="-inset-4 absolute rounded-3xl bg-gradient-to-br from-primary/20 via-chart-4/15 to-chart-5/20 opacity-70 blur-2xl transition-opacity duration-500 group-hover:opacity-100" aria-hidden />
+              <div className="relative overflow-hidden rounded-2xl border border-border bg-card shadow-xl ring-1 ring-primary/15 transition-all duration-500 group-hover:-translate-y-1 group-hover:shadow-2xl group-hover:ring-primary/25">
+                <div className="flex items-center gap-1.5 border-border border-b bg-muted/60 px-4 py-2.5">
+                  <span className="size-2.5 rounded-full bg-red-400/70" />
+                  <span className="size-2.5 rounded-full bg-yellow-400/70" />
+                  <span className="size-2.5 rounded-full bg-green-400/70" />
+                  <span className="ml-3 truncate font-medium text-muted-foreground text-xs">
+                    taskflow.app/dashboard
+                  </span>
+                </div>
+                <Image
+                  src="/web-screenshot.png"
+                  alt="TaskFlow dashboard preview showing your boards after sign in"
+                  width={1600}
+                  height={900}
+                  className="h-auto w-full"
+                  sizes="(min-width: 768px) 50vw, 100vw"
+                />
+>>>>>>> c5d1f4e285a6103987385c0ddfd21fcb6b9a598d
               </div>
             </div>
           </div>
