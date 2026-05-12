@@ -37,7 +37,7 @@ function BoardPage() {
       setBoard(data)
       console.log(data)
     }
-
+    
     void loadBoard()
   }, [boardId])
 
