@@ -181,12 +181,12 @@ function HomePage() {
             </div>
 
             <div>
-              <div className="relative mx-auto w-full max-w-xl lg:max-w-none">
+              <div className="relative mx-auto w-full max-w-xl transition-transform duration-500 ease-out motion-safe:hover:-translate-y-2 lg:max-w-none">
                 <div
                   aria-hidden
                   className="absolute -inset-4 rounded-[2rem] bg-gradient-to-br from-primary/20 via-transparent to-chart-4/15 blur-2xl md:-inset-6"
                 />
-                <figure className="relative overflow-hidden rounded-2xl border border-border bg-card shadow-[0_24px_64px_-32px_rgb(15_23_42/0.45)] ring-1 ring-black/5 dark:shadow-[0_32px_80px_-40px_rgb(0_0_0/0.75)] dark:ring-white/10">
+                <figure className="relative overflow-hidden rounded-2xl border border-border bg-card shadow-[0_24px_64px_-32px_rgb(15_23_42/0.45)] ring-1 ring-black/5 transition-shadow duration-500 hover:shadow-[0_32px_80px_-28px_rgb(15_23_42/0.65)] dark:shadow-[0_32px_80px_-40px_rgb(0_0_0/0.75)] dark:ring-white/10 dark:hover:shadow-[0_40px_96px_-32px_rgb(0_0_0/0.9)]">
                   <div className="relative aspect-[16/10] w-full bg-muted">
                     <Image
                       src="/web-screenshot.png"

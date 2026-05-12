@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -23,7 +23,20 @@ function LoginPage() {
   const [password, setPassword] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
+  const [tokenChecked, setTokenChecked] = useState(false)
   const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL?.replace(/\/$/, '') ?? ''
+
+  useEffect(() => {
+    const token = localStorage.getItem('token')?.trim()
+
+    if (token) {
+      alert('you have already logged in')
+      router.replace('/app/dashboard')
+      return
+    }
+
+    setTokenChecked(true)
+  }, [router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     let submittedUser: { id: unknown; name: unknown; email: unknown } | null = null
@@ -255,6 +268,10 @@ function LoginPage() {
       console.error(error)
       setErrorMessage('Login failed')
     }
+  }
+
+  if (!tokenChecked) {
+    return null
   }
 
   return (
