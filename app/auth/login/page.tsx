@@ -10,10 +10,10 @@ import { Label } from '@/components/ui/label'
 import { Kanban, Loader2, Lock, Mail } from 'lucide-react'
 import { FaGithub } from 'react-icons/fa'
 import { FcGoogle } from 'react-icons/fc'
-import { auth, googleProvider, githubProvider } from '@/app/services/auth/firebaseConfig'
 import { signInWithPopup } from 'firebase/auth'
-import { userFromLoginResponse } from '@/lib/user-session'
+import { auth, githubProvider, googleProvider } from '@/app/services/auth/firebaseConfig'
 import { useUser } from '@/components/user-provider'
+import { userFromLoginResponse } from '@/lib/user-session'
 
 function LoginPage() {
   const router = useRouter()
@@ -30,9 +30,15 @@ function LoginPage() {
     const token = localStorage.getItem('token')?.trim()
 
     if (token) {
-      alert('you have already logged in')
-      router.replace('/app/dashboard')
-      return
+      setSuccessMessage('you have already logged in')
+      setErrorMessage('')
+      setTokenChecked(true)
+
+      const redirectTimer = window.setTimeout(() => {
+        router.replace('/app/dashboard')
+      }, 1500)
+
+      return () => window.clearTimeout(redirectTimer)
     }
 
     setTokenChecked(true)
@@ -44,6 +50,7 @@ function LoginPage() {
     setIsLoading(true)
     setErrorMessage('')
     setSuccessMessage('')
+
     try {
       const response = await fetch(`${baseUrl}/auth/login`, {
         method: 'POST',
@@ -53,12 +60,15 @@ function LoginPage() {
         body: JSON.stringify({ username, password }),
       })
       const data = (await response.json()) as Record<string, unknown> & { success?: boolean }
+
       if (data.success) {
         const body = data.data
         let accessToken = typeof data.token === 'string' ? data.token.trim() : ''
+
         if (!accessToken && typeof body === 'string') {
           accessToken = body.trim()
         }
+
         if (!accessToken && body && typeof body === 'object' && !Array.isArray(body)) {
           const nested = (body as { token?: unknown }).token
           if (typeof nested === 'string') accessToken = nested.trim()
@@ -72,6 +82,7 @@ function LoginPage() {
 
         localStorage.setItem('token', accessToken)
         setSuccessMessage('Login successful')
+
         const payload =
           body && typeof body === 'object' && !Array.isArray(body) ? (body as Record<string, unknown>) : null
         submittedUser = {
@@ -79,6 +90,7 @@ function LoginPage() {
           name: payload?.name,
           email: payload?.email,
         }
+
         if (submittedUser.id != null && String(submittedUser.id).length > 0) {
           setUser({
             id: String(submittedUser.id),
@@ -88,6 +100,7 @@ function LoginPage() {
         } else {
           setUser(userFromLoginResponse(data, username))
         }
+
         setUserData(submittedUser as Record<string, unknown>)
         setTimeout(() => {
           router.push('/app/dashboard')
@@ -108,6 +121,7 @@ function LoginPage() {
     let submittedUser: { id: unknown; name: unknown; email: unknown } | null = null
     setErrorMessage('')
     setSuccessMessage('')
+
     try {
       const result = await signInWithPopup(auth, googleProvider)
       const u = result.user
@@ -127,12 +141,15 @@ function LoginPage() {
         }),
       })
       const data = (await response.json()) as Record<string, unknown> & { success?: boolean }
+
       if (data.success) {
         const body = data.data
         let accessToken = typeof data.token === 'string' ? data.token.trim() : ''
+
         if (!accessToken && typeof body === 'string') {
           accessToken = body.trim()
         }
+
         if (!accessToken && body && typeof body === 'object' && !Array.isArray(body)) {
           const nested = (body as { token?: unknown }).token
           if (typeof nested === 'string') accessToken = nested.trim()
@@ -149,9 +166,7 @@ function LoginPage() {
         const payload =
           body && typeof body === 'object' && !Array.isArray(body) ? (body as Record<string, unknown>) : null
         const gu =
-          payload?.googleuser &&
-          typeof payload.googleuser === 'object' &&
-          !Array.isArray(payload.googleuser)
+          payload?.googleuser && typeof payload.googleuser === 'object' && !Array.isArray(payload.googleuser)
             ? (payload.googleuser as Record<string, unknown>)
             : null
 
@@ -171,8 +186,8 @@ function LoginPage() {
         } else {
           setUser(userFromLoginResponse(data, displayFallback))
         }
-        setUserData(submittedUser as Record<string, unknown>)
 
+        setUserData(submittedUser as Record<string, unknown>)
         setSuccessMessage('Login successful')
         setTimeout(() => {
           router.push('/app/dashboard')
@@ -191,6 +206,7 @@ function LoginPage() {
     let submittedUser: { id: unknown; name: unknown; email: unknown } | null = null
     setErrorMessage('')
     setSuccessMessage('')
+
     try {
       const result = await signInWithPopup(auth, githubProvider)
       const u = result.user
@@ -207,13 +223,15 @@ function LoginPage() {
         }),
       })
       const data = (await response.json()) as Record<string, unknown> & { success?: boolean }
-      console.log(data)
+
       if (data.success) {
         const body = data.data
         let accessToken = typeof data.token === 'string' ? data.token.trim() : ''
+
         if (!accessToken && typeof body === 'string') {
           accessToken = body.trim()
         }
+
         if (!accessToken && body && typeof body === 'object' && !Array.isArray(body)) {
           const nested = (body as { token?: unknown }).token
           if (typeof nested === 'string') accessToken = nested.trim()
@@ -230,9 +248,7 @@ function LoginPage() {
         const payload =
           body && typeof body === 'object' && !Array.isArray(body) ? (body as Record<string, unknown>) : null
         const gh =
-          payload?.githubuser &&
-          typeof payload.githubuser === 'object' &&
-          !Array.isArray(payload.githubuser)
+          payload?.githubuser && typeof payload.githubuser === 'object' && !Array.isArray(payload.githubuser)
             ? (payload.githubuser as Record<string, unknown>)
             : null
 
@@ -254,8 +270,8 @@ function LoginPage() {
         } else {
           setUser(userFromLoginResponse(data, displayFallback))
         }
-        setUserData(submittedUser as Record<string, unknown>)
 
+        setUserData(submittedUser as Record<string, unknown>)
         setSuccessMessage('Login successful')
         setTimeout(() => {
           router.push('/app/dashboard')
@@ -327,7 +343,11 @@ function LoginPage() {
                 className="transition-shadow duration-200 focus-visible:shadow-md"
               />
             </div>
-            <Button type="submit" className="w-full shadow-sm transition-all duration-200 hover:shadow-md active:scale-[0.98]" disabled={isLoading}>
+            <Button
+              type="submit"
+              className="w-full shadow-sm transition-all duration-200 hover:shadow-md active:scale-[0.98]"
+              disabled={isLoading}
+            >
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 size-4 animate-spin" />
