@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import {
   ArrowLeft,
+  Check,
   Copy,
   Download,
   FileText,
@@ -201,6 +202,7 @@ export function BoardExtras({ board }: { board: BoardDetails }) {
   const params = useParams<{ boardld: string }>()
   const boardId = params.boardld
   const [showDeleteSuccess, setShowDeleteSuccess] = useState(false)
+  const [checkedSideTasks, setCheckedSideTasks] = useState([true, false, false])
 
   const handleDeleteBoard = async () => {
     const token = localStorage.getItem('token')
@@ -268,6 +270,62 @@ export function BoardExtras({ board }: { board: BoardDetails }) {
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Created</span>
             <span className="text-foreground">Today</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="rounded-xl border border-border/50 bg-card p-5 sm:col-span-2">
+        <div className="mb-4 flex items-center gap-2">
+          <StickyNote className="h-4 w-4" style={{ color: board.color }} />
+          <h3 className="text-sm font-medium" style={{ color: board.color }}>Side Tasks Checklist</h3>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-[1fr_16rem]">
+          <div className="space-y-2">
+            {['Review board details', 'Prepare next task list', 'Share updates with team'].map((task, index) => (
+              <label
+                key={task}
+                className="flex cursor-pointer items-center gap-3 rounded-lg border border-border bg-secondary/20 p-3 text-sm transition hover:bg-secondary/40"
+              >
+                <input
+                  type="checkbox"
+                  checked={checkedSideTasks[index] ?? false}
+                  onChange={() => {
+                    setCheckedSideTasks((current) =>
+                      current.map((checked, currentIndex) => (currentIndex === index ? !checked : checked)),
+                    )
+                  }}
+                  className="sr-only"
+                />
+                <span
+                  className="flex h-4 w-4 shrink-0 items-center justify-center rounded border bg-background transition"
+                  style={{
+                    backgroundColor: checkedSideTasks[index] ? board.color : undefined,
+                    borderColor: checkedSideTasks[index] ? board.color : undefined,
+                  }}
+                >
+                  {checkedSideTasks[index] ? <Check className="h-3 w-3 text-white" /> : null}
+                </span>
+                <span className="text-foreground">{task}</span>
+              </label>
+            ))}
+          </div>
+
+          <div className="flex flex-col gap-2 rounded-lg border border-dashed border-border bg-secondary/20 p-3">
+            <input
+              type="text"
+              placeholder="Add side task"
+              className="h-10 rounded-md border bg-background px-3 text-sm outline-none transition focus:ring-2"
+              style={{ borderColor: `${board.color}66` }}
+            />
+            <button
+              type="button"
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-md px-3 text-sm font-medium text-white transition hover:opacity-90"
+              style={{ backgroundColor: board.color }}
+            >
+              <Plus className="h-4 w-4" />
+              Add Side Task
+            </button>
           </div>
         </div>
       </div>
