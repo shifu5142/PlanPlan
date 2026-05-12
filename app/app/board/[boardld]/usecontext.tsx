@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import {
@@ -22,6 +22,7 @@ export type BoardDetails = {
   title: string
   description: string
   color: string
+  active: boolean
 }
 
 export function normalizeBoard(data: unknown): BoardDetails | null {
@@ -40,6 +41,7 @@ export function normalizeBoard(data: unknown): BoardDetails | null {
     title: o.title,
     description: o.description,
     color: o.color,
+    active: typeof o.active === 'boolean' ? o.active : true,
   }
 }
 
@@ -76,6 +78,38 @@ export function Header({
 }
 
 export function HeroSection({ board }: { board: BoardDetails }) {
+  const params = useParams<{ boardld: string }>()
+  const boardId = params.boardld
+  const [isActive, setIsActive] = useState(board.active)
+  const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL?.replace(/\/$/, '') ?? ''
+
+  useEffect(() => {
+    setIsActive(board.active)
+  }, [board.active])
+
+  const handleActiveBoard = async () => {
+    const nextActive = !isActive
+    setIsActive(nextActive)
+    const token = localStorage.getItem('token')
+    const response = await fetch(`${baseUrl}/app/board/${boardId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ active: nextActive }),
+    })
+    if (!response.ok) throw new Error('fetch failed')
+    const data = (await response.json()) as { success?: boolean }
+  console.log(data.success)
+    if (data.success === true) {
+      setIsActive(nextActive)
+    }
+  }
+
+  const statusColor = isActive ? board.color : '#6b7280'
+ 
+
   return (
     <section className="relative overflow-hidden rounded-2xl border border-border/50 bg-card">
       <div className="h-1.5 w-full" style={{ backgroundColor: board.color }} />
@@ -100,16 +134,18 @@ export function HeroSection({ board }: { board: BoardDetails }) {
               {board.title}
             </h1>
             <div className="mt-2 flex items-center gap-3">
-              <span
-                className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium"
+              <button
+                type="button"
+                onClick={handleActiveBoard}
+                className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium transition hover:opacity-85"
                 style={{
-                  backgroundColor: `${board.color}15`,
-                  color: board.color,
+                  backgroundColor: isActive ? `${board.color}15` : '#f3f4f6',
+                  color: statusColor,
                 }}
               >
-                <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: board.color }} />
-                Active
-              </span>
+                <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: statusColor }} />
+                {isActive ? 'Active' : 'not active'}
+              </button>
               <span className="text-sm text-muted-foreground">Private board</span>
             </div>
           </div>
