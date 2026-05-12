@@ -1,10 +1,11 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import {
   ArrowLeft,
+  Check,
   Copy,
   Download,
   FileText,
@@ -23,6 +24,12 @@ export type BoardDetails = {
   description: string
   color: string
   active: boolean
+}
+
+type SideQuest = {
+  id: number
+  title: string
+  completed: boolean
 }
 
 export function normalizeBoard(data: unknown): BoardDetails | null {
@@ -166,6 +173,121 @@ export function DescriptionCard({ board }: { board: BoardDetails }) {
         {board.description}
       </p>
     </article>
+  )
+}
+
+export function SideQuestChecklist({ board }: { board: BoardDetails }) {
+  const [sideQuests, setSideQuests] = useState<SideQuest[]>([])
+  const [newSideQuest, setNewSideQuest] = useState('')
+  const [nextSideQuestId, setNextSideQuestId] = useState(1)
+
+  const handleAddSideQuest = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+
+    const title = newSideQuest.trim()
+    if (!title) return
+
+    setSideQuests((current) => [
+      ...current,
+      {
+        id: nextSideQuestId,
+        title,
+        completed: false,
+      },
+    ])
+    setNextSideQuestId((current) => current + 1)
+    setNewSideQuest('')
+  }
+
+  const toggleSideQuest = (sideQuestId: number) => {
+    setSideQuests((current) =>
+      current.map((sideQuest) =>
+        sideQuest.id === sideQuestId
+          ? { ...sideQuest, completed: !sideQuest.completed }
+          : sideQuest,
+      ),
+    )
+  }
+
+  return (
+    <section className="rounded-xl border border-border/50 bg-card p-6">
+      <div className="mb-4 flex items-center gap-2">
+        <Check className="h-4 w-4 text-muted-foreground" />
+        <h2 className="text-sm font-medium text-muted-foreground">
+          Side quests
+        </h2>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-[1fr_18rem]">
+        <div className="space-y-2">
+          {sideQuests.length > 0 ? (
+            sideQuests.map((sideQuest) => (
+              <div
+                key={sideQuest.id}
+                className="flex items-center gap-3 rounded-lg border border-border bg-secondary/30 p-3 text-sm"
+              >
+                <button
+                  type="button"
+                  onClick={() => toggleSideQuest(sideQuest.id)}
+                  aria-label={
+                    sideQuest.completed
+                      ? `Mark ${sideQuest.title} as not completed`
+                      : `Mark ${sideQuest.title} as completed`
+                  }
+                  className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 transition-all hover:scale-105"
+                  style={{
+                    borderColor: board.color,
+                    backgroundColor: sideQuest.completed
+                      ? board.color
+                      : 'transparent',
+                    color: sideQuest.completed ? '#ffffff' : board.color,
+                  }}
+                >
+                  {sideQuest.completed ? <Check className="h-4 w-4" /> : null}
+                </button>
+                <span
+                  className={`min-w-0 flex-1 ${
+                    sideQuest.completed
+                      ? 'text-muted-foreground line-through'
+                      : 'text-foreground'
+                  }`}
+                >
+                  {sideQuest.title}
+                </span>
+              </div>
+            ))
+          ) : (
+            <div className="rounded-lg border border-dashed border-border bg-secondary/30 p-3 text-sm text-muted-foreground">
+              No side quests yet.
+            </div>
+          )}
+        </div>
+
+        <form onSubmit={handleAddSideQuest} className="space-y-2">
+          <label
+            htmlFor="side-quest-input"
+            className="text-sm font-medium text-foreground"
+          >
+            Add side quest
+          </label>
+          <input
+            id="side-quest-input"
+            type="text"
+            value={newSideQuest}
+            onChange={(event) => setNewSideQuest(event.target.value)}
+            placeholder="New side quest"
+            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition focus:border-primary"
+          />
+          <button
+            type="submit"
+            className="inline-flex w-full items-center justify-center rounded-lg px-3.5 py-2 text-sm font-medium text-white transition-all hover:opacity-90"
+            style={{ backgroundColor: board.color }}
+          >
+            Add
+          </button>
+        </form>
+      </div>
+    </section>
   )
 }
 

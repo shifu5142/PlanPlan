@@ -10,6 +10,7 @@ import {
   Header,
   HeroSection,
   LoadingState,
+  SideQuestChecklist,
   normalizeBoard,
   type BoardDetails,
 } from './usecontext'
@@ -85,6 +86,7 @@ function BoardPage() {
       <div className="space-y-6">
         <HeroSection board={board} />
         <DescriptionCard board={board} />
+        <SideQuestChecklist board={board} />
         <ActionButtons board={board} />
         <BoardExtras board={board} />
       </div>
