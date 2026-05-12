@@ -257,11 +257,12 @@ function BoardExtras({ board }: { board: BoardDetails }) {
             <UserPlus className="h-4 w-4" />
             Invite User
           </button>
-
-          <button className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3.5 py-2 text-sm font-medium text-foreground transition-all hover:bg-secondary">
-            <Settings className="h-4 w-4" />
-            Settings
-          </button>
+          <Link href={`/app/settings`}>
+            <button className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3.5 py-2 text-sm font-medium text-foreground transition-all hover:bg-secondary">
+              <Settings className="h-4 w-4" />
+              Settings
+            </button>
+          </Link>
         </div>
       </div>
     </div>
