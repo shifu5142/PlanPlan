@@ -1,5 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
-  <path d="M6 5V19" stroke="#3B82F6" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" />
-  <path d="M12 5V13" stroke="#3B82F6" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" />
-  <path d="M18 5V9" stroke="#3B82F6" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" role="img" aria-label="TaskFlow">
+  <rect width="32" height="32" rx="8" fill="url(#a)" />
+  <defs>
+    <linearGradient id="a" x1="4" y1="4" x2="28" y2="28" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#6366f1" />
+      <stop offset="1" stop-color="#22d3ee" />
+    </linearGradient>
+  </defs>
+  <rect x="6" y="8" width="5.5" height="16" rx="1.2" fill="white" fill-opacity="0.95" />
+  <rect x="13.25" y="8" width="5.5" height="11" rx="1.2" fill="white" fill-opacity="0.88" />
+  <rect x="20.5" y="8" width="5.5" height="14" rx="1.2" fill="white" fill-opacity="0.92" />
 </svg>
