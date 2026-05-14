@@ -24,27 +24,36 @@ export type BoardDetails = {
   description: string
   color: string
   active: boolean
+  tasks: string[]
 }
 
 export function normalizeBoard(data: unknown): BoardDetails | null {
-  if (!data || typeof data !== 'object') return null
-  const o = data as Record<string, unknown>
+  if (!data || typeof data !== 'object') return null;
+
+  const o = data as Record<string, any>;
+
+  if (!o.board || typeof o.board !== 'object') return null;
+
+  const board = o.board;
 
   if (
-    typeof o.title !== 'string' ||
-    typeof o.description !== 'string' ||
-    typeof o.color !== 'string'
+    typeof board.title !== 'string' ||
+    typeof board.description !== 'string' ||
+    typeof board.color !== 'string'
   ) {
-    return null
+    return null;
   }
 
   return {
-    title: o.title,
-    description: o.description,
-    color: o.color,
-    active: typeof o.active === 'boolean' ? o.active : true,
-  }
-}
+    title: board.title,
+    description: board.description,
+    color: board.color,
+    active: typeof board.active === 'boolean' ? board.active : true,
+
+    // optional but recommended
+    tasks: Array.isArray(board.tasks) ? board.tasks : [],
+  };
+} 
 
 export function Header({
   board,
@@ -82,11 +91,34 @@ export function HeroSection({ board }: { board: BoardDetails }) {
   const params = useParams<{ boardld: string }>()
   const boardId = params.boardld
   const [isActive, setIsActive] = useState(board.active)
+  const [tasks, setTasks] = useState<string[]>([])
   const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL?.replace(/\/$/, '') ?? ''
 
   useEffect(() => {
-    setIsActive(board.active)
-  }, [board.active])
+    async function fetchBoard() {
+      try {
+        const token = localStorage.getItem('token')
+        console.log("boardId in frontend:", boardId)
+        console.log("URL:", `${baseUrl}/app/board/${boardId}`)
+        const response = await fetch(`${baseUrl}/app/board/${boardId}`, {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        if (!response.ok) throw new Error('fetch failed')
+        const data = await response.json()
+      console.log(data)
+        setIsActive(data.board.active)
+        setTasks(data.tasks)
+
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
+    void fetchBoard()
+  }, [boardId, baseUrl])
 
   const handleActiveBoard = async () => {
     const nextActive = !isActive
@@ -102,9 +134,11 @@ export function HeroSection({ board }: { board: BoardDetails }) {
     })
     if (!response.ok) throw new Error('fetch failed')
     const data = (await response.json()) as { success?: boolean }
-  console.log(data.success)
     if (data.success === true) {
       setIsActive(nextActive)
+      const questArr = (data as { tasks: string[] }).tasks
+ 
+
     }
   }
 
@@ -197,13 +231,15 @@ export function ActionButtons({ board }: { board: BoardDetails }) {
   )
 }
 const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL?.replace(/\/$/, '') ?? ''
+
 export function BoardExtras({ board }: { board: BoardDetails }) {
   const router = useRouter()
   const params = useParams<{ boardld: string }>()
   const boardId = params.boardld
   const [showDeleteSuccess, setShowDeleteSuccess] = useState(false)
-  const [checkedSideTasks, setCheckedSideTasks] = useState([true, false, false])
-
+  const [sideTaskTitles, setSideTaskTitles] = useState<string[]>([])
+  const [checkedSideTasks, setCheckedSideTasks] = useState<boolean[]>([])
+  const [newSideTask, setNewSideTask] = useState('')
   const handleDeleteBoard = async () => {
     const token = localStorage.getItem('token')
     const response = await fetch(`${baseUrl}/app/board/${boardId}`, {
@@ -222,7 +258,32 @@ export function BoardExtras({ board }: { board: BoardDetails }) {
       }, 1500)
     }
   }
-  return (
+  const handleAddSideTask = async () => {
+    const trimmed = newSideTask.trim()
+    if (!trimmed) return
+
+    try {
+      const token = localStorage.getItem('token')
+      const response = await fetch(`${baseUrl}/app/board/${boardId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ task: trimmed }),
+      })
+      if (!response.ok) throw new Error('fetch failed')
+      const data = (await response.json()) as { success?: boolean }
+      if (data.success === true) {
+        setSideTaskTitles((prev) => [...prev, trimmed])
+        setCheckedSideTasks((prev) => [...prev, false])
+        setNewSideTask('')
+      }
+    } catch (error) {
+      console.error(error)
+    }
+  }
+    return (
     <>
       {showDeleteSuccess ? (
         <div className="fixed top-6 left-1/2 z-50 -translate-x-1/2 rounded-md border border-green-300 bg-green-100 px-4 py-2 font-medium text-green-800 text-sm shadow-lg">
@@ -281,10 +342,16 @@ export function BoardExtras({ board }: { board: BoardDetails }) {
         </div>
 
         <div className="grid gap-4 md:grid-cols-[1fr_16rem]">
-          <div className="space-y-2">
-            {['Review board details', 'Prepare next task list', 'Share updates with team'].map((task, index) => (
+          <div
+            className={`min-h-0 space-y-2 ${
+              sideTaskTitles.length > 5
+                ? 'max-h-72 overflow-y-auto overscroll-contain pr-1'
+                : ''
+            }`}
+          >
+            {sideTaskTitles.map((task, index) => (
               <label
-                key={task}
+                key={`${index}-${task}`}
                 className="flex cursor-pointer items-center gap-3 rounded-lg border border-border bg-secondary/20 p-3 text-sm transition hover:bg-secondary/40"
               >
                 <input
@@ -317,8 +384,10 @@ export function BoardExtras({ board }: { board: BoardDetails }) {
               placeholder="Add side task"
               className="h-10 rounded-md border bg-background px-3 text-sm outline-none transition focus:ring-2"
               style={{ borderColor: `${board.color}66` }}
+              value={newSideTask}
+              onChange={(e) => setNewSideTask(e.target.value)}
             />
-            <button
+            <button onClick={handleAddSideTask}
               type="button"
               className="inline-flex h-10 items-center justify-center gap-2 rounded-md px-3 text-sm font-medium text-white transition hover:opacity-90"
               style={{ backgroundColor: board.color }}
