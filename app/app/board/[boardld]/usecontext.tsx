@@ -119,7 +119,7 @@ export function Header({
       </button>
 
       <Link
-        href={`/app/board/${boardId}/edit`}
+        href={`/app/board/${boardId}/changeExistData`}
         className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-white transition-all hover:opacity-90 hover:shadow-lg"
         style={{ backgroundColor: board.color }}
       >
