@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useParams } from 'next/navigation'
-
+import { useRouter } from 'next/navigation'
 function SettingsCard({
   title,
   description,
@@ -43,6 +43,7 @@ function ChangeExistDataPage() {
   const boardId = useParams<{ boardld: string }>().boardld
   const token = localStorage.getItem('token')
   const [successMessage, setSuccessMessage] = useState('')
+  const router = useRouter()
   const handleSave = async () => {
     const response = await fetch(`${baseUrl}/app/board/${boardId}/changeExistData`, {
       method: 'PUT',
@@ -60,6 +61,22 @@ function ChangeExistDataPage() {
       setSuccessMessage('Board updated successfully!')
       window.setTimeout(() => {
         setSuccessMessage('')
+      }, 5000)
+    }
+  }
+  const handleDelete = async () => {
+    const response = await fetch(`${baseUrl}/app/board/${boardId}/changeExistData`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    if (!response.ok) throw new Error('fetch failed')
+    const data = await response.json()
+    if (data.success === true) {
+      setSuccessMessage('Board deleted successfully!')
+      setTimeout(() => {
+        router.push('/app/dashboard')
       }, 5000)
     }
   }
@@ -204,7 +221,7 @@ function ChangeExistDataPage() {
                     Once deleted, this board cannot be recovered.
                   </p>
                 </div>
-                <Button variant="destructive" size="sm">
+                <Button variant="destructive" size="sm" onClick={handleDelete}>
                   Delete
                 </Button>
               </div>
