@@ -1,6 +1,5 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import {
@@ -18,6 +17,50 @@ import {
   Trash2,
   UserPlus,
 } from 'lucide-react'
+
+import { useEffect, useMemo, useState, useSyncExternalStore } from 'react'
+
+/** Labels shown in Side Tasks Checklist — filled from HeroSection’s `tasks` after each fetch. */
+let sideMissionDisplayRows: string[] = []
+const sideMissionListeners = new Set<() => void>()
+
+function notifySideMissionListeners() {
+  for (const l of sideMissionListeners) l()
+}
+
+function subscribeSideMissionTasks(cb: () => void) {
+  sideMissionListeners.add(cb)
+  return () => sideMissionListeners.delete(cb)
+}
+
+function getSideMissionTasksSnapshot() {
+  return sideMissionDisplayRows
+}
+
+/** One task row from API: text lives on `side_mission` (plus common fallbacks). */
+export function sideMissionLabelFromTaskItem(item: unknown): string {
+  if (typeof item === 'string') return item
+  if (typeof item === 'number' || typeof item === 'boolean') return String(item)
+  if (item && typeof item === 'object' && !Array.isArray(item)) {
+    const o = item as Record<string, unknown>
+    const sm = o.side_mission ?? o.sideMission
+    if (typeof sm === 'string') return sm
+    if (typeof sm === 'number' || typeof sm === 'boolean') return String(sm)
+    for (const k of ['title', 'task', 'name', 'text', 'label', 'content'] as const) {
+      const v = o[k]
+      if (typeof v === 'string') return v
+    }
+  }
+  return ''
+}
+
+export function labelsFromTasksPayload(raw: unknown): string[] {
+  if (!Array.isArray(raw)) return []
+  return raw
+    .map(sideMissionLabelFromTaskItem)
+    .map((s) => s.trim())
+    .filter(Boolean)
+}
 
 export type BoardDetails = {
   title: string
@@ -91,7 +134,7 @@ export function HeroSection({ board }: { board: BoardDetails }) {
   const params = useParams<{ boardld: string }>()
   const boardId = params.boardld
   const [isActive, setIsActive] = useState(board.active)
-  const [tasks, setTasks] = useState<string[]>([])
+  const [tasks, setTasks] = useState<unknown[]>([])
   const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL?.replace(/\/$/, '') ?? ''
 
   useEffect(() => {
@@ -108,9 +151,10 @@ export function HeroSection({ board }: { board: BoardDetails }) {
         })
         if (!response.ok) throw new Error('fetch failed')
         const data = await response.json()
-      console.log(data)
+        console.log(data)
         setIsActive(data.board.active)
         setTasks(data.tasks)
+        console.log(data.tasks)
 
       } catch (error) {
         console.error(error)
@@ -119,6 +163,11 @@ export function HeroSection({ board }: { board: BoardDetails }) {
 
     void fetchBoard()
   }, [boardId, baseUrl])
+
+  useEffect(() => {
+    sideMissionDisplayRows = labelsFromTasksPayload(tasks)
+    notifySideMissionListeners()
+  }, [tasks])
 
   const handleActiveBoard = async () => {
     const nextActive = !isActive
@@ -136,9 +185,6 @@ export function HeroSection({ board }: { board: BoardDetails }) {
     const data = (await response.json()) as { success?: boolean }
     if (data.success === true) {
       setIsActive(nextActive)
-      const questArr = (data as { tasks: string[] }).tasks
- 
-
     }
   }
 
@@ -237,9 +283,24 @@ export function BoardExtras({ board }: { board: BoardDetails }) {
   const params = useParams<{ boardld: string }>()
   const boardId = params.boardld
   const [showDeleteSuccess, setShowDeleteSuccess] = useState(false)
-  const [sideTaskTitles, setSideTaskTitles] = useState<string[]>([])
+  const fromApi = useSyncExternalStore(
+    subscribeSideMissionTasks,
+    getSideMissionTasksSnapshot,
+    getSideMissionTasksSnapshot,
+  )
+  const [sideTaskExtras, setSideTaskExtras] = useState<string[]>([])
   const [checkedSideTasks, setCheckedSideTasks] = useState<boolean[]>([])
   const [newSideTask, setNewSideTask] = useState('')
+
+  useEffect(() => {
+    setSideTaskExtras([])
+  }, [boardId])
+
+  const displayTasks = useMemo(() => [...fromApi, ...sideTaskExtras], [fromApi, sideTaskExtras])
+
+  useEffect(() => {
+    setCheckedSideTasks(displayTasks.map(() => false))
+  }, [displayTasks])
   const handleDeleteBoard = async () => {
     const token = localStorage.getItem('token')
     const response = await fetch(`${baseUrl}/app/board/${boardId}`, {
@@ -275,8 +336,7 @@ export function BoardExtras({ board }: { board: BoardDetails }) {
       if (!response.ok) throw new Error('fetch failed')
       const data = (await response.json()) as { success?: boolean }
       if (data.success === true) {
-        setSideTaskTitles((prev) => [...prev, trimmed])
-        setCheckedSideTasks((prev) => [...prev, false])
+        setSideTaskExtras((prev) => [...prev, trimmed])
         setNewSideTask('')
       }
     } catch (error) {
@@ -343,39 +403,41 @@ export function BoardExtras({ board }: { board: BoardDetails }) {
 
         <div className="grid gap-4 md:grid-cols-[1fr_16rem]">
           <div
-            className={`min-h-0 space-y-2 ${
-              sideTaskTitles.length > 5
+            className={`side_mission min-h-0 space-y-2 ${
+              displayTasks.length > 5
                 ? 'max-h-72 overflow-y-auto overscroll-contain pr-1'
                 : ''
             }`}
           >
-            {sideTaskTitles.map((task, index) => (
-              <label
-                key={`${index}-${task}`}
-                className="flex cursor-pointer items-center gap-3 rounded-lg border border-border bg-secondary/20 p-3 text-sm transition hover:bg-secondary/40"
-              >
-                <input
-                  type="checkbox"
-                  checked={checkedSideTasks[index] ?? false}
-                  onChange={() => {
+            {displayTasks.map((task, index) => {
+              const checked = checkedSideTasks[index] ?? false
+              return (
+                <button
+                  key={`${index}-${task}`}
+                  type="button"
+                  role="checkbox"
+                  aria-checked={checked}
+                  className="flex w-full cursor-pointer items-center gap-3 rounded-lg border border-border bg-secondary/20 p-3 text-left text-sm transition hover:bg-secondary/40"
+                  onClick={() => {
                     setCheckedSideTasks((current) =>
-                      current.map((checked, currentIndex) => (currentIndex === index ? !checked : checked)),
+                      current.map((c, i) => (i === index ? !c : c)),
                     )
                   }}
-                  className="sr-only"
-                />
-                <span
-                  className="flex h-4 w-4 shrink-0 items-center justify-center rounded border bg-background transition"
-                  style={{
-                    backgroundColor: checkedSideTasks[index] ? board.color : undefined,
-                    borderColor: checkedSideTasks[index] ? board.color : undefined,
-                  }}
                 >
-                  {checkedSideTasks[index] ? <Check className="h-3 w-3 text-white" /> : null}
-                </span>
-                <span className="text-foreground">{task}</span>
-              </label>
-            ))}
+                  <span
+                    className="flex h-4 w-4 shrink-0 items-center justify-center rounded border bg-background transition"
+                    style={{
+                      backgroundColor: checked ? board.color : undefined,
+                      borderColor: checked ? board.color : undefined,
+                    }}
+                    aria-hidden
+                  >
+                    {checked ? <Check className="h-3 w-3 text-white" /> : null}
+                  </span>
+                  <span className="side_mission min-w-0 flex-1 text-foreground">{task}</span>
+                </button>
+              )
+            })}
           </div>
 
           <div className="flex flex-col gap-2 rounded-lg border border-dashed border-border bg-secondary/20 p-3">

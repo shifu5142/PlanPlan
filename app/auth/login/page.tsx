@@ -28,8 +28,17 @@ function LoginPage() {
 
   useEffect(() => {
     const token = localStorage.getItem('token')?.trim()
+    async function checkToken() {
+      try {
+    const response = await fetch(`${baseUrl}/auth/login`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    const data = await response.json()
+    if (data.success) {
 
-    if (token) {
       setSuccessMessage('you have already logged in')
       setErrorMessage('')
       setTokenChecked(true)
@@ -40,9 +49,15 @@ function LoginPage() {
 
       return () => window.clearTimeout(redirectTimer)
     }
-
+  } catch (error) {
+    console.error(error)
+  } finally {
+    setIsLoading(false)
+  }
+  }
     setTokenChecked(true)
-  }, [router])
+    void checkToken()
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     let submittedUser: { id: unknown; name: unknown; email: unknown } | null = null
